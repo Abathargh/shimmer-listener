@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from shimmer_listener import bt_init, bt_listen, bt_close, DataTuple
+from threading import Lock
 import argparse
 import logging
 import socket
@@ -18,6 +19,7 @@ parser.add_argument("--port", "-p", type=int, required=True, help=port_help)
 parser.add_argument("--server", "-s", type=str, help=host_help, default="localhost")
 
 c_data_socket: socket.socket
+mutex = Lock()
 
 
 def socket_init(host: str, port: int) -> None:
@@ -30,7 +32,8 @@ def socket_init(host: str, port: int) -> None:
 # node in ndoe-red to understand that an instance of incoming data is arrived
 def forward(data: DataTuple) -> None:
     j_data = json.dumps(data.as_dict())
-    c_data_socket.send((j_data + "\n").encode())
+    with mutex:
+        c_data_socket.send((j_data + "\n").encode())
 
 
 def main():

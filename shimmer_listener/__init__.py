@@ -7,7 +7,7 @@ to be forwarded to other apps (e.g. nodered)
 """
 
 from collections import namedtuple
-from threading import Thread
+from threading import Thread, Lock
 from typing import Callable
 from bluetooth import *
 import logging
@@ -24,6 +24,7 @@ _uuid = "85b98cdc-9f43-4f88-92cd-0c3fcf631d1d"
 
 # This list contains a reference to each open connection
 _open_conn = []
+_mutex = Lock()
 
 # Bluetooth server socket that acts as a slave for multiple
 _bt_sock: BluetoothSocket
@@ -57,7 +58,8 @@ def bt_listen(process: Callable[[DataTuple], None]) -> None:
         client_sock, client_info = _bt_sock.accept()
         logging.info(f"Mote connection with BT MAC: {client_info[0]}")
         in_stream = BTInputStream(mac=client_info[0], sock=client_sock, process=process)
-        _open_conn.append(in_stream)
+        with _mutex:
+            _open_conn.append(in_stream)
         in_stream.start()
 
 
@@ -66,8 +68,9 @@ def bt_close() -> None:
     Gracefully stop any open connection
     :return: None
     """
-    for in_stream in _open_conn:
-        in_stream.stop()
+    with _mutex:
+        for in_stream in _open_conn:
+            in_stream.stop()
     _bt_sock.close()
 
 
@@ -102,19 +105,24 @@ class BTInputStream(Thread):
     def run(self) -> None:
         self._running = True
         while self._running:
-            numbytes = 0
-            ddata = bytearray()
-            while numbytes < _framesize:
-                ddata += bytearray(self._sock.recv(_framesize))
-                numbytes = len(ddata)
+            try:
+                numbytes = 0
+                ddata = bytearray()
+                while numbytes < _framesize:
+                    ddata += bytearray(self._sock.recv(_framesize))
+                    numbytes = len(ddata)
 
-            # the following data split refers to the 22 B long frame structure discussed earlier
-            # the first seven and the last two fields (crc, end) are ignored since we don't need them
-            # in this particular app
-            data = ddata[0:_framesize]
-            (accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, _, _) = struct.unpack("HHHHHHHB", data[7:22])
-            fmt_data = DataTuple(self._mac, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z)
-            self._process(fmt_data)
-
+                # the following data split refers to the 22 B long frame structure discussed earlier
+                # the first seven and the last two fields (crc, end) are ignored since we don't need them
+                # in this particular app
+                data = ddata[0:_framesize]
+                (accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, _, _) = struct.unpack("HHHHHHHB", data[7:22])
+                fmt_data = DataTuple(self._mac, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z)
+                self._process(fmt_data)
+            except btcommon.BluetoothError:
+                break
+        logging.info(f"Mote with BT MAC {self._mac}: disconnecting")
         self._sock.close()
-        _open_conn.remove(self)
+
+        with _mutex:
+            _open_conn.remove(self)
