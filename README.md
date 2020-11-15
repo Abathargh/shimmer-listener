@@ -14,7 +14,12 @@ accel/gyro data via the BluetoothMaster TinyOS app.
 
 ## Installation
 
-The library uses pybluez, so you will probably have to install **libbluetooth-dev**.
+The library uses pybluez, so you will probably have to install **libbluetooth-dev** and **bluez**.
+On debian-like:
+
+```bash
+sudo apt install libbluetooth-dev bluez
+```
 
 Clone the repo or download a pre-built wheel from the release section, then:
 
