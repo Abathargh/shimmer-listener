@@ -6,10 +6,11 @@ them via a process function. This approach can be used both for data to be local
 to be forwarded to other apps (e.g. nodered)
 """
 
+from bluetooth.btcommon import BluetoothError
+from bluetooth import *
 from collections import namedtuple
 from threading import Thread, Lock
 from typing import Callable
-from bluetooth import *
 import logging
 import struct
 
@@ -27,7 +28,7 @@ _open_conn = []
 _mutex = Lock()
 
 # Bluetooth server socket that acts as a slave for multiple
-_bt_sock: BluetoothSocket
+_bt_sock = None
 
 # Incoming data is stored in tuples
 DataTuple = namedtuple("DataTuple", ["mac", "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"])
@@ -56,7 +57,7 @@ def bt_listen(process: Callable[[DataTuple], None]) -> None:
     """
     while True:
         client_sock, client_info = _bt_sock.accept()
-        logging.info(f"Mote connection with BT MAC: {client_info[0]}")
+        logging.info("Mote connection with BT MAC: {}".format(client_info[0]))
         in_stream = BTInputStream(mac=client_info[0], sock=client_sock, process=process)
         with _mutex:
             _open_conn.append(in_stream)
@@ -119,9 +120,9 @@ class BTInputStream(Thread):
                 (accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, _, _) = struct.unpack("HHHHHHHB", data[7:22])
                 fmt_data = DataTuple(self._mac, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z)
                 self._process(fmt_data)
-            except btcommon.BluetoothError:
+            except BluetoothError:
                 break
-        logging.info(f"Mote with BT MAC {self._mac}: disconnecting")
+        logging.info("Mote with BT MAC {}: disconnecting".format(self._mac))
         self._sock.close()
 
         with _mutex:

@@ -8,11 +8,28 @@ accel/gyro data via the BluetoothMaster TinyOS app.
 
 ## Contents
 
-- [Installation](#Installation)
-- [Usage](#Usage)
+- [shimmer-listener](#shimmer-listener)
+  - [Contents](#contents)
+  - [Installation](#installation)
+    - [Windows](#windows)
+    - [Debian-like](#debian-like)
+  - [Usage](#usage)
     - [shimmer-to-nodered](#shimmer-to-nodered)
 
 ## Installation
+
+### Windows
+
+You need to have Microsoft Visual C++ installed in order to build a wheel for pybluez during the installation process.
+
+Get [Visual Studio Installer](https://visualstudio.microsoft.com/it/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16) here, go to Workloads and install the whole Build Tools for C++ suite, which is the first option in the top left corner.
+
+Then, you can just:
+```bash
+pip install .
+```
+
+### Debian-like
 
 The library uses pybluez, so you will probably have to install **libbluetooth-dev** and **bluez**.
 On debian-like:
@@ -69,7 +86,7 @@ if __name__ == "__main__":
         bt_close()
 ```
 
-You can take a look at the shimmer-to-nodered script in the **scripts** folder for a practical example.
+You can take a look at the **to_nodered** module for a practical example.
 
 ### shimmer-to-nodered
 

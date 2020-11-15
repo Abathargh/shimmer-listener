@@ -1,7 +1,9 @@
 from setuptools import setup, find_packages
 
+
 with open("README.md", "r") as f:
     desc = f.read()
+
 
 setup(
     name="shimmer-listener",
@@ -17,5 +19,7 @@ setup(
     license="MPL2.0",
     data_files=[("", ["LICENSE"])],
     packages=find_packages(),
-    scripts=["scripts/shimmer-to-nodered"]
+    entry_points={
+        "console_scripts": ["shimmer-to-nodered=shimmer_listener.to_nodered:main"]
+    }
 )
