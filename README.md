@@ -42,6 +42,14 @@ refer to these two links.
 
 ## Usage
 
+Before running an application, your machine must be discoverable in the bluetooth network:
+
+```bash
+sudo hciconfig hci0 piscan
+```
+
+This is an example of the simplest application that just prints the incoming DataTuples:
+
 ```python
 from shimmer_listener import bt_init, bt_listen, bt_close, DataTuple
 
