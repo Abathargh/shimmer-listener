@@ -6,7 +6,7 @@ inspired from the python demo scripts that can be found inside some of the sub-d
 
 ## Contents
 
-- [About][#about]
+- [About](#about)
 - [Installation](#installation)
     - [Windows](#windows)
     - [Debian-like](#debian-like)
