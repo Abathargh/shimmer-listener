@@ -1,20 +1,29 @@
 # shimmer-listener
 
-This is a heavily modified version of the script that can be found inside the 
-BluetoothMaster subfolder of the [tinyos shimmer apps repository](https://github.com/ShimmerResearch/tinyos-shimmer).
-
-This small library acts as an extension that is capable of pairing with multiple motes communicating 
-accel/gyro data via the BluetoothMaster TinyOS app.
+This is a project that started from the idea of having a general library that interacted with shimmer apps for tinyos, 
+inspired from the python demo scripts that can be found inside some of the sub-directories of the 
+[tinyos shimmer apps repository](https://github.com/ShimmerResearch/tinyos-shimmer).
 
 ## Contents
 
-- [shimmer-listener](#shimmer-listener)
-  - [Contents](#contents)
-  - [Installation](#installation)
+- [About][]
+- [Installation](#installation)
     - [Windows](#windows)
     - [Debian-like](#debian-like)
-  - [Usage](#usage)
+- [Usage](#usage)
     - [shimmer-to-nodered](#shimmer-to-nodered)
+
+## About
+
+This library allows you to connect to a Shimmer2 mote via Bluetooth both in Master and Slave mode, interacting with it 
+via the shimmer-apps precedently introduced (even if it's possible to create custom interactions).
+
+For now, there's only support for the BluetoothMasterTest app for Master-mode motes. For what concerns Slave-mode motes, 
+you can use strings identifying the particular app in the initialization process to make the library understand which 
+protocol to use to interpret and unpack the incoming data.
+
+The received data can be handled via a data processing function that has to be passed at init time, where you define 
+what to do with each instance of incoming data.
 
 ## Installation
 
@@ -64,22 +73,26 @@ refer to these two links.
 
 ## Usage
 
-Before running an application, your machine must be discoverable in the bluetooth network:
+If you are on a debian-like system and you're using the slave-mode, your machine must be discoverable in the bluetooth 
+network by using:
 
 ```bash
 sudo hciconfig hci0 piscan
 ```
 
-This is an example of the simplest application that just prints the incoming DataTuples:
+This is an example of the simplest application that just prints the incoming data instances in Master Mode, with 
+a slave mote that runs the simple_accel app:
 
 ```python
-from shimmer_listener import bt_init, bt_listen, bt_close, DataTuple
+from shimmer_listener import bt_init, bt_listen, bt_close, BtMode
 
-def process_data(data: DataTuple) -> None:
-    print(data.as_dict())
+def process_data(data):
+    print(data)
+
 
 if __name__ == "__main__":       
-    bt_init()
+    bt_init(mode=BtMode.MASTER, node_app="simple_accel")
+
     try:
         bt_listen(process=process_data)
     except KeyboardInterrupt:
@@ -98,3 +111,6 @@ to the nodered instance:
 shimmer-to-nodered -p <port>
 ```
 
+
+
+[]: #about
