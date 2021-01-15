@@ -26,8 +26,11 @@ rf_port = 1
 _current_app: str
 _discovering = True
 
+
+# require formatting in app init and store nothing in hardcoded way
+
 _apps: Dict[str, frameinfo] = {
-    "simple_accel": frameinfo(120, 8, "hhhh", ["accel_x", "accel_y", "accel_z"])
+    "simple_accel": frameinfo(120, 8, "hhhh", ["accel_x", "accel_y", "accel_z", "rawbatt"])
 }
 
 
@@ -41,6 +44,7 @@ def _master_init(node_app: str):
 def _master_listen(process: Callable[[namedtuple], None]) -> None:
     global _discovering
     while _discovering:
+        # flush_cache=True, lookup_class=False possible fix to script as exec bug?
         found_devices = bluetooth.discover_devices(duration=lookup_duration, lookup_names=True)
         for device in found_devices:
             bluetooth.BluetoothSocket()

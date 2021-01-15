@@ -4,6 +4,8 @@ import argparse
 import logging
 import socket
 import json
+import sys
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -43,7 +45,8 @@ def main():
         bt_listen(process=forward)
     except KeyboardInterrupt:
         bt_close()
-
+    finally:
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
