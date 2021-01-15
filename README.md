@@ -20,7 +20,7 @@ via the shimmer-apps precedently introduced (even if it's possible to create cus
 
 For now, there's only support for the BluetoothMasterTest app for Master-mode motes. For what concerns Slave-mode motes, 
 you can use strings identifying the particular app in the initialization process to make the library understand which 
-protocol to use to interpret and unpack the incoming data.
+protocol should be used to interpret and unpack the incoming data.
 
 The received data can be handled via a data processing function that has to be passed at init time, where you define 
 what to do with each instance of incoming data.
