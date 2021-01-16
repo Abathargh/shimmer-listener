@@ -19,6 +19,7 @@ General idea:
 # Lookup duration for the scan operation by the master
 # The RF port to use is the number 1
 lookup_duration = 5
+scan_interval = 5
 rf_port = 1
 
 
@@ -42,7 +43,7 @@ def _master_listen(process: Callable[[namedtuple], None]) -> None:
                     BtSlaveInputStream(mac=device[0], sock=sock, process=process).start()
                 except bluetooth.btcommon.BluetoothError as err:
                     logging.error(err)
-        time.sleep(5)
+        time.sleep(scan_interval)
 
 
 def _master_close():

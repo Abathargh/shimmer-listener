@@ -18,6 +18,7 @@ __all__ = ["bt_init", "bt_listen", "bt_close", "BtMode"]
 
 
 listen = [_master_listen, _slave_listen]
+close = [_master_close, _slave_close]
 
 
 class BtMode(enum.Enum):
@@ -71,4 +72,5 @@ def bt_close() -> None:
     global _op_mode
     if _op_mode is None:
         raise ValueError("Trying to close a non initialized interface")
+    close[_op_mode.index]()
     close_streams()

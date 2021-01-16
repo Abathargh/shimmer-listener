@@ -21,10 +21,9 @@ SlaveDataTuple = namedtuple("DataTuple", ["mac", "accel_x", "accel_y", "accel_z"
 
 
 def close_streams():
-    with _mutex:
-        for stream in _open_conn:
-            if stream.open:
-                stream.stop()
+    for stream in _open_conn:
+        if stream.open:
+            stream.stop()
 
 
 class BtStream(ABC, Thread):
