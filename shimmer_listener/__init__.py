@@ -11,7 +11,7 @@ from typing import Callable, Optional, Dict
 import enum
 
 from ._slave import _slave_init, _slave_listen, _slave_close
-from ._master import _master_init, _master_listen, _master_close
+from ._master import _master_listen, _master_close
 from ._streams import close_streams
 
 __all__ = ["bt_init", "bt_listen", "bt_close", "BtMode"]
@@ -35,12 +35,11 @@ class BtMode(enum.Enum):
 _op_mode: Optional[BtMode] = None
 
 
-def bt_init(mode: BtMode, node_app: Optional[str] = None) -> None:
+def bt_init(mode: BtMode) -> None:
     """
     Initializes the bluetooth server socket interface.
     Call this at the beginning of your program.
     :param mode: Slave or Master mode
-    :param node_app: if in Master mode, this specifies which app running on the mote we interface with
     :return: None
     """
     global _op_mode
@@ -50,8 +49,6 @@ def bt_init(mode: BtMode, node_app: Optional[str] = None) -> None:
 
     if _op_mode == BtMode.SLAVE:
         _slave_init()
-    else:
-        _master_init(node_app)
 
 
 def bt_listen(process: Callable[[Dict], None]) -> None:

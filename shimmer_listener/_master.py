@@ -23,22 +23,7 @@ rf_port = 1
 
 
 # App name to frameinfo mapping
-_current_app: str
 _discovering = True
-
-
-# require formatting in app init and store nothing in hardcoded way
-
-_apps: Dict[str, frameinfo] = {
-    "simple_accel": frameinfo(120, 8, "hhhh", ["accel_x", "accel_y", "accel_z", "rawbatt"])
-}
-
-
-def _master_init(node_app: str):
-    global _current_app
-    if node_app is None or node_app not in _apps:
-        raise ValueError("Invalid node_app passed to the init function")
-    _current_app = node_app
 
 
 def _master_listen(process: Callable[[namedtuple], None]) -> None:
@@ -54,7 +39,7 @@ def _master_listen(process: Callable[[namedtuple], None]) -> None:
                     logging.info(f"Pairing with {device[0]}..")
                     sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
                     sock.connect((device[0], rf_port))
-                    BtSlaveInputStream(mac=device[0], sock=sock, process=process, app_info=_apps[_current_app]).start()
+                    BtSlaveInputStream(mac=device[0], sock=sock, process=process).start()
                 except bluetooth.btcommon.BluetoothError as err:
                     logging.error(err)
         time.sleep(5)

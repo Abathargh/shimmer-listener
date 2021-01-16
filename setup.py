@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="shimmer-listener",
-    version="0.2",
+    version="0.3",
     description="shimmer2 data listener, based on the work contained in "
                 "https://github.com/ShimmerResearch/tinyos-shimmer",
     long_description=desc,
@@ -20,6 +20,9 @@ setup(
     data_files=[("", ["LICENSE"])],
     packages=find_packages(),
     entry_points={
-        "console_scripts": ["shimmer-to-nodered=shimmer_listener._to_nodered:main"]
+        "console_scripts": [
+            "shimmer-to-nodered=shimmer_listener._console_scripts.py:nodered_app",
+            "shimmer-printer=shimmer_listener._console_scripts.py:printer_app"
+        ]
     }
 )

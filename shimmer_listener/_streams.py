@@ -10,7 +10,7 @@ import struct
 
 """
 Frame info: a frame may contain multiple "chunks"
-    e.g. the SimpleAccel app sends frames of 120 B that contain 15 8-bit
+    e.g. the SimpleAccel app sends frames of 120 B that contain 15 8 byte
         chunks of packed data with format "hhhh"
 """
 frameinfo = namedtuple("frameinfo", ["framesize", "lenchunks", "format", "keys"])
@@ -125,17 +125,23 @@ class BtSlaveInputStream(BtStream):
     Abstraction for the data input stream coming from a slave device running
     on a shimmer2 mote.
     """
-    def __init__(self, mac: str, sock: BluetoothSocket, process: Callable[[Dict], None], app_info: frameinfo):
+
+    """
+    The first frame sent by the shimmer is special and contains information about its
+    data format. The size is fixed by a simple protocol to 122 B.
+    """
+    fmt_frame_size = 112
+
+    def __init__(self, mac: str, sock: BluetoothSocket, process: Callable[[Dict], None]):
         """
         Initializes a new input stream from a Master mote
 
         :param mac: the BT MAC address of the mote sending data
         :param sock: the local socket bound to the mote
         :param process: a function that processes the generated DataTuples
-        :param app_info: frame info
         """
         super().__init__(mac=mac, sock=sock, process=process)
-        self._info = app_info
+        self._info = None
 
     def _to_dict(self, raw_data: tuple):
         d = {}
@@ -143,8 +149,37 @@ class BtSlaveInputStream(BtStream):
             d[key] = raw_data[idx]
         return d
 
+    def _init_frameinfo(self, info: bytearray):
+        fmt_unp = struct.unpack("BB10s100s", info)
+        framesize = fmt_unp[0]
+        lenchunks = fmt_unp[1]
+        chunk_fmt = fmt_unp[2].decode().rstrip("\x00")
+
+        unfmt_keys = fmt_unp[3].decode()
+        data_keys = []
+
+        key_len = 10
+        keys_len = 100
+        for base in range(0, keys_len, key_len):
+            data_keys.append(unfmt_keys[base:base + key_len].rstrip("\x00"))
+        data_keys = [elem for elem in data_keys if elem != '']
+        self._info = frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
+
     def run(self):
         self._running = True
+        try:
+            fmt_len = 0
+            fmt_frame = bytearray()
+            while fmt_len < BtSlaveInputStream.fmt_frame_size:
+                fmt_frame += bytearray(self._sock.recv(BtSlaveInputStream.fmt_frame_size))
+                fmt_len = len(fmt_frame)
+
+            self._init_frameinfo(fmt_frame)
+            logging.info(f"Received presentation frame: {self._info}")
+        except struct.error:
+            logging.error("error in decoding presentation frame!")
+            self._running = False
+
         while self._running:
             data_len = 0
             data = bytearray()
