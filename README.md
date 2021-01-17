@@ -7,6 +7,7 @@ inspired from the python demo scripts that can be found inside some of the sub-d
 ## Contents
 
 - [About](#about)
+    - [Presentation protocol](#presentation-protocol)
 - [Installation](#installation)
     - [Windows](#windows)
     - [Debian-like](#debian-like)
@@ -19,11 +20,54 @@ This library allows you to connect to a Shimmer2 mote via Bluetooth both in Mast
 via the shimmer-apps precedently introduced (even if it's possible to create custom interactions).
 
 For now, there's only support for the BluetoothMasterTest app for Master-mode motes. For what concerns Slave-mode motes, 
-you can use strings identifying the particular app in the initialization process to make the library understand which 
-protocol should be used to interpret and unpack the incoming data.
+a small initialization protocol (the **presentation** protocol) is used in order for the mote to let the master node know 
+about its data formats.
 
 The received data can be handled via a data processing function that has to be passed at init time, where you define 
-what to do with each instance of incoming data.
+what to do with each instance of incoming data (more on this in the example below).
+
+### Presentation protocol
+
+The presentation protocol is just a small protocol through which a BT Slave Shimmer describes the data frames that 
+are to be expected when a BT Master initiates a connection. Its structure is the following:
+
+```c
+#define MAX_FMT_LEN 10
+#define MAX_STR_LEN 10
+#define MAX_KEY_NUM 10
+
+typedef char key_string[MAX_STR_LEN];
+
+typedef struct {
+    uint8_t framesize;
+    uint8_t chunklen;
+    char format[MAX_FMT_LEN];
+    key_string keys[MAX_KEY_NUM];
+} frameinfo;
+```
+
+To let your nesC app implement this protocol, just copy this C snippet into a header file or directly into the 
+nesC app implementation, create an instance of frameinfo containing your metadata and send it as the first Bluetooth 
+message (in Bluetooth.connectionMade).
+
+The struct fields refer to:
+
+- **framesize**, the size of a single frame, meaning the buffer size that you periodically forward to the BT Master.
+- **chunklen**, the size of one chunk of the frame, a contiguous unit of related data packed into the frame.
+- **format**, the format of the data packed into the chunk, this refers to the [python 3 struct library format](https://docs.python.org/3/library/struct.html#format-characters).
+- **keys**, a list of keys describing each sensed data packed into a chunk.
+
+**e.g.**
+
+A Shimmer2r streaming accelerometer + battery data, packs the data as four 16 bit instances in an 8 B chunk. A full 
+buffer is 120 B wide, containing a total of 15 8 B chunks.
+
+Then we'll have:
+
+- framesize = 120 B
+- chunklen = 8 B
+- format = "hhhh" (h = short int aka 2 B integer in python struct terms)
+- keys = {"accel_x", "accel_y", "accel_z", "batt"}
 
 ## Installation
 
@@ -73,7 +117,7 @@ refer to these two links.
 
 ## Usage
 
-If you are on a debian-like system and you're using the slave-mode, your machine must be discoverable in the bluetooth 
+If you are on a debian-like system, and you're using the slave-mode, your machine must be discoverable in the bluetooth 
 network by using:
 
 ```bash
@@ -81,7 +125,7 @@ sudo hciconfig hci0 piscan
 ```
 
 This is an example of the simplest application that just prints the incoming data instances in Master Mode, with 
-a slave mote that runs the simple_accel app:
+a slave mote that runs its app that implements the shimmer-listener presentation protocol:
 
 ```python
 from shimmer_listener import bt_init, bt_listen, bt_close, BtMode
@@ -91,7 +135,7 @@ def process_data(data):
 
 
 if __name__ == "__main__":       
-    bt_init(mode=BtMode.MASTER, node_app="simple_accel")
+    bt_init(mode=BtMode.MASTER)
 
     try:
         bt_listen(process=process_data)
@@ -99,7 +143,7 @@ if __name__ == "__main__":
         bt_close()
 ```
 
-You can take a look at the **to_nodered** module for a practical example.
+You can take a look at the **_console_scripts** module for a practical example.
 
 ### shimmer-to-nodered
 
@@ -109,4 +153,13 @@ to the nodered instance:
 
 ```bash
 shimmer-to-nodered -p <port>
+```
+
+### shimmer-printer
+
+This is am executable that can be used to quickly check if your devices successfully work with the app. It just prints 
+every data frame it receives.
+
+```bash
+shimmer-printer
 ```
