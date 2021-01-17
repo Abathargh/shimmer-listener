@@ -21,8 +21,8 @@ setup(
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "shimmer-to-nodered=shimmer_listener._console_scripts.py:nodered_app",
-            "shimmer-printer=shimmer_listener._console_scripts.py:printer_app"
+            "shimmer-to-nodered=shimmer_listener._console_scripts:nodered_app",
+            "shimmer-printer=shimmer_listener._console_scripts:printer_app"
         ]
     }
 )
