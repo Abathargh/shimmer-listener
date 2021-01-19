@@ -1,13 +1,29 @@
 from shimmer_listener import bt_init, bt_listen, bt_close, BtMode
 from threading import Lock
+import bluetooth
 import argparse
 import logging
 import socket
 import json
-import sys
 
 
 logging.basicConfig(level=logging.INFO)
+
+
+def btmastertest_app():
+    """
+    Loosely based on the bluetoothMasterTest.py app from https://github.com/ShimmerResearch/tinyos-shimmer
+    """
+
+    def on_message(mac, data):
+        logging.info(f"BT MAC {mac}: got {data}")
+
+    bt_init(BtMode.SLAVE)
+
+    try:
+        bt_listen(message_handle=on_message)
+    except KeyboardInterrupt:
+        bt_close()
 
 
 def nodered_app():
@@ -16,7 +32,7 @@ def nodered_app():
 
     # The newline char is the data separator used in order for the tcp
     # node in node-red to understand that an instance of incoming data is arrived
-    def forward(data: dict):
+    def on_message(mac, data):
         j_data = json.dumps(data)
         with mutex:
             c_data_socket.send((j_data + "\n").encode())
@@ -36,25 +52,37 @@ def nodered_app():
     c_data_socket.connect((args.server, args.port))
 
     try:
-        bt_listen(process=forward)
+        bt_listen(message_handle=on_message)
+    except bluetooth.btcommon.BluetoothError as be:
+        logging.error(be)
+        bt_close()
     except KeyboardInterrupt:
         bt_close()
-    finally:
-        sys.exit(0)
 
 
 def printer_app():
-    def forward(data: dict):
-        print(data)
+    def on_connect(mac, info):
+        logging.info(f"BT MAC {mac}: received presentation frame, {info} ")
+
+    def on_disconnect(mac, lost):
+        if lost:
+            logging.error(f"BT MAC {mac}: connection lost")
+        else:
+            logging.info(f"BT MAC {mac}: disconnecting")
+
+    def on_message(mac, data):
+        logging.info(f"BT MAC {mac}: got {data}")
 
     bt_init(mode=BtMode.MASTER)
 
     try:
-        bt_listen(process=forward)
+        bt_listen(connect_handle=on_connect, message_handle=on_message,
+                  disconnect_handle=on_disconnect)
+    except bluetooth.btcommon.BluetoothError as be:
+        logging.error(be)
+        bt_close()
     except KeyboardInterrupt:
         bt_close()
-    finally:
-        sys.exit(0)
 
 
 if __name__ == "__main__":

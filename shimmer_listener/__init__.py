@@ -1,24 +1,17 @@
 """
-Loosely based on the bluetoothMasterTwe
-est.py app from https://github.com/ShimmerResearch/tinyos-shimmer
-
-We acquire data from the accelerometer and from the gyroscope modules on the mote, format them, and process
-them via a process function. This approach can be used both for data to be locally transformed or for the data
-to be forwarded to other apps (e.g. nodered)
+This library allows you to connect to a Shimmer2 mote via Bluetooth both in Master and Slave
+mode, interacting with the applications on the mote.
 """
 
-from typing import Callable, Optional, Dict
-import enum
-
+from ._streams import BtSlaveInputStream, BtMasterInputStream, frameinfo, close_streams
 from ._slave import _slave_init, _slave_listen, _slave_close
 from ._master import _master_listen, _master_close
-from ._streams import close_streams
 
-__all__ = ["bt_init", "bt_listen", "bt_close", "BtMode"]
+from typing import Optional, Callable, Any, Dict, List
+import enum
 
 
-listen = [_master_listen, _slave_listen]
-close = [_master_close, _slave_close]
+__all__ = ["bt_init", "bt_listen", "bt_close", "frameinfo", "BtMode", "BtSlaveInputStream"]
 
 
 class BtMode(enum.Enum):
@@ -33,35 +26,39 @@ class BtMode(enum.Enum):
         return self.value
 
 
+listen: List[Callable] = [_master_listen, _slave_listen]
+close: List[Callable] = [_master_close, _slave_close]
 _op_mode: Optional[BtMode] = None
+_running: bool = False
 
 
 def bt_init(mode: BtMode) -> None:
     """
     Initializes the bluetooth server socket interface.
     Call this at the beginning of your program.
-    :param mode: Slave or Master mode
+    :param mode: One between BtMode.MASTER or BtMode.SLAVE
     :return: None
     """
-    global _op_mode
-    if _op_mode is not None:
+    global _op_mode, _running
+    if _running:
         raise ValueError("Trying to initialize an already started interface")
-    _op_mode = mode
-
-    if _op_mode == BtMode.SLAVE:
+    if mode == BtMode.SLAVE:
         _slave_init()
+    _op_mode = mode
+    _running = True
 
 
-def bt_listen(process: Callable[[Dict], None]) -> None:
+def bt_listen(connect_handle: Optional[Callable[[str, frameinfo], None]] = None,
+              message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+              disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
     """
     Starts the listen loop
-    :param process: a void function taking in a DataTuple
     :return: None
     """
     global _op_mode
-    if _op_mode is None:
+    if _op_mode is None or not _running:
         raise ValueError("Listen operation on non initialized interface")
-    listen[_op_mode.index](process)
+    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle)
 
 
 def bt_close() -> None:
@@ -69,8 +66,11 @@ def bt_close() -> None:
     Gracefully stop any open connection
     :return: None
     """
-    global _op_mode
+    global _op_mode, _running
     if _op_mode is None:
         raise ValueError("Trying to close a non initialized interface")
     close[_op_mode.index]()
     close_streams()
+
+    _op_mode = None
+    _running = False

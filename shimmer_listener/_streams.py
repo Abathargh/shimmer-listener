@@ -1,12 +1,9 @@
-from bluetooth.btcommon import BluetoothError
-from typing import Callable, List, Dict, Any
-from bluetooth import BluetoothSocket
+from typing import Optional, Callable, Dict, Any
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from threading import Thread, Lock
-import logging
+import bluetooth
 import struct
-
 
 """
 Frame info: a frame may contain multiple "chunks"
@@ -15,36 +12,88 @@ Frame info: a frame may contain multiple "chunks"
 """
 frameinfo = namedtuple("frameinfo", ["framesize", "lenchunks", "format", "keys"])
 
-
 # Incoming data if started as Slave is stored in tuples
 SlaveDataTuple = namedtuple("DataTuple", ["mac", "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"])
 
+# This list contains a reference to each open connection
+_open_conn = set()
+_mutex = Lock()
+
 
 def close_streams():
-    for stream in _open_conn:
+    with _mutex:
+        open_copy = _open_conn.copy()
+    for stream in open_copy:
         if stream.open:
             stream.stop()
 
 
-class BtStream(ABC, Thread):
+class BtStream(ABC):
     """
-    Abstraction of a Bluetooth input stream coming from a mote with given mack
-    over a given socket. Its data is processed by the given process function
+    Abstraction of a Bluetooth input stream coming from a mote with given mac over a given socket.
+    A series of callbacks can be used and set as properties to intercept certain events:
+
+    on_connect(mac: str, info: frameinfo) -> None
+        Called when a mote identified by **mac** succesfully connects. All the information
+        regarding the exchanged data format, obtained through *the presentatin protocol* are
+        accessible via **info**.
+    on_message(mac: str, frame: Dict[str, Any]) -> None
+        Called when a message is received from a mote identified by **mac**. The message is
+        returned as a dict with the keys previously obtained from the *presentation protocol*.
+    on_disconnect(mac: str, lost: bool) -> None
+        Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
+        event happened because the connection has been lost.
     """
-    def __init__(self, mac: str, sock: BluetoothSocket, process: Callable[[Dict], None]):
+
+    def __init__(self, mac: str):
         """
         :param mac: the BT MAC address of the mote
-        :param sock: the local socket bound to the mote
-        :param process: a function that processes the generated DataTuples
         """
         super().__init__()
         self._mac = mac
-        self._sock = sock
         self._running = False
-        self._process = process
+
+        # Callbacks
+        self._on_connect: Optional[Callable[[str, frameinfo], None]] = None
+        self._on_message: Optional[Callable[[str, Dict[str, Any]], None]] = None
+        self._on_disconnect: Optional[Callable[[str, bool], None]] = None
 
         with _mutex:
-            _open_conn.append(self)
+            _open_conn.add(self)
+
+    def __eq__(self, other):
+        if not isinstance(other, BtStream):
+            return False
+        if other is self:
+            return True
+        return self._mac == other._mac
+
+    def __hash__(self):
+        return hash(self._mac)
+
+    @property
+    def on_connect(self):
+        return self._on_connect
+
+    @on_connect.setter
+    def on_connect(self, callback):
+        self._on_connect = callback
+
+    @property
+    def on_message(self):
+        return self._on_message
+
+    @on_message.setter
+    def on_message(self, callback):
+        self._on_message = callback
+
+    @property
+    def on_disconnect(self):
+        return self._on_disconnect
+
+    @on_disconnect.setter
+    def on_disconnect(self, callback):
+        self._on_disconnect = callback
 
     @property
     def open(self) -> bool:
@@ -63,16 +112,15 @@ class BtStream(ABC, Thread):
         if self._running:
             self._running = False
             with _mutex:
-                _open_conn.remove(self)
+                _open_conn.discard(self)
 
     @abstractmethod
-    def run(self):
+    def _loop(self):
         pass
 
-
-# This list contains a reference to each open connection
-_open_conn: List[BtStream] = []
-_mutex: Lock = Lock()
+    def start(self):
+        if not self._running:
+            Thread(target=self._loop).start()
 
 
 class BtMasterInputStream(BtStream):
@@ -82,24 +130,30 @@ class BtMasterInputStream(BtStream):
     """
 
     # Standard framesize in the tinyos Bluetooth implementation taken from the shimmer apps repo
+    # In this case a frame contains exactly one chunk, hence framesize = chunklen
     _framesize = 22
+    _slave_frameinfo = frameinfo(_framesize, _framesize, "HHHHHHHB",
+                                 ["mac", "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"])
 
-    def __init__(self, mac: str, sock: BluetoothSocket, uuid: str, process: Callable[[Dict], None]):
+    def __init__(self, mac: str, sock: bluetooth.BluetoothSocket, uuid: str):
         """
         Initializes a new input stream from a Master mote
 
         :param mac: the BT MAC address of the mote sending data
         :param sock: the local socket bound to the mote
         :param uuid: the uuid of the service that is being advertised
-        :param process: a function that processes the generated DataTuples
         """
-        super().__init__(mac=mac, sock=sock, process=process)
+        super().__init__(mac=mac)
         self._uuid = uuid
+        self._sock = sock
 
-    def run(self) -> None:
+    def _loop(self) -> None:
+        if self.on_connect:
+            self.on_connect(self._mac, self._slave_frameinfo)
+
         self._running = True
-        while self._running:
-            try:
+        try:
+            while self._running:
                 numbytes = 0
                 ddata = bytearray()
                 while numbytes < self._framesize:
@@ -112,35 +166,42 @@ class BtMasterInputStream(BtStream):
                 data = ddata[0:self._framesize]
                 (accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, _, _) = struct.unpack("HHHHHHHB", data[7:22])
                 fmt_data = SlaveDataTuple(self._mac, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z)
-                self._process(fmt_data._asdict())
-            except BluetoothError:
-                break
-        logging.info("Mote with BT MAC {}: disconnecting".format(self._mac))
-        self._sock.close()
+                if self.on_message:
+                    self.on_message(self._mac, fmt_data._asdict())
+            if self.on_disconnect:
+                self.on_disconnect(self._mac, False)
+        except bluetooth.btcommon.BluetoothError:
+            if self.on_disconnect:
+                self.on_disconnect(self._mac, True)
+        finally:
+            self._running = False
+            self._sock.close()
 
 
 class BtSlaveInputStream(BtStream):
     """
-    Abstraction for the data input stream coming from a slave device running
-    on a shimmer2 mote.
-    """
+    Abstraction for the data input stream coming from a slave device running on a shimmer2 mote.
 
-    """
     The first frame sent by the shimmer is special and contains information about its
-    data format. The size is fixed by a simple protocol to 122 B.
-    """
-    fmt_frame_size = 112
+    data format. The size is fixed by a simple protocol to 112 B. Its internal format
+    is made as such:
 
-    def __init__(self, mac: str, sock: BluetoothSocket, process: Callable[[Dict], None]):
+    - 1 unsigned byte containing the message frame size that is going to be used in the communication.
+    - 1 unsigned byte containing the chunk size of each chunk packed into a frame.
+    - a string of length 10, containing the format of packed data contained in each chunk.
+    - a string of length 100, containing a max of 10, 10 char long key names of each value packed in the chunk.
+    """
+    _pres_frame_size = 112
+    _pres_frame_fmt = "BB10s100s"
+
+    def __init__(self, mac: str):
         """
         Initializes a new input stream from a Master mote
-
         :param mac: the BT MAC address of the mote sending data
-        :param sock: the local socket bound to the mote
-        :param process: a function that processes the generated DataTuples
         """
-        super().__init__(mac=mac, sock=sock, process=process)
+        super().__init__(mac=mac)
         self._info = None
+        self._sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
     def _to_dict(self, raw_data: tuple):
         d = {}
@@ -149,7 +210,7 @@ class BtSlaveInputStream(BtStream):
         return d
 
     def _init_frameinfo(self, info: bytearray):
-        fmt_unp = struct.unpack("BB10s100s", info)
+        fmt_unp = struct.unpack(BtSlaveInputStream._pres_frame_fmt, info)
         framesize = fmt_unp[0]
         lenchunks = fmt_unp[1]
         chunk_fmt = fmt_unp[2].decode().rstrip("\x00")
@@ -164,29 +225,47 @@ class BtSlaveInputStream(BtStream):
         data_keys = [elem for elem in data_keys if elem != '']
         self._info = frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
 
-    def run(self):
-        self._running = True
+    def _loop(self):
         try:
+            # Init BT socket and loop
+            rf_port = 1
+            self._sock.connect((self._mac, rf_port))
+            self._running = True
+
+            # Wait for a 112 B presentation frame
             fmt_len = 0
             fmt_frame = bytearray()
-            while fmt_len < BtSlaveInputStream.fmt_frame_size:
-                fmt_frame += bytearray(self._sock.recv(BtSlaveInputStream.fmt_frame_size))
+            while fmt_len < BtSlaveInputStream._pres_frame_size:
+                fmt_frame += bytearray(self._sock.recv(BtSlaveInputStream._pres_frame_size))
                 fmt_len = len(fmt_frame)
 
+            # Parse presentation and notify the on connect callback
             self._init_frameinfo(fmt_frame)
-            logging.info(f"Received presentation frame: {self._info}")
-        except struct.error:
-            logging.error("error in decoding presentation frame!")
-            self._running = False
+            if self.on_connect:
+                self.on_connect(self._mac, self._info)
 
-        while self._running:
-            data_len = 0
-            data = bytearray()
-            while data_len < self._info.framesize:
-                data += bytearray(self._sock.recv(self._info.framesize))
-                data_len = len(data)
-            for idx in range(0, self._info.framesize, self._info.lenchunks):
-                raw_data = struct.unpack(self._info.format, data[idx:idx + self._info.lenchunks])
-                self._process(self._to_dict(raw_data))
-        logging.info("Mote with BT MAC {}: disconnecting".format(self._mac))
-        self._sock.close()
+            # Data reading loop based on frameinfo format
+            while self._running:
+                data_len = 0
+                data = bytearray()
+                while data_len < self._info.framesize:
+                    data += bytearray(self._sock.recv(self._info.framesize))
+                    data_len = len(data)
+                for idx in range(0, self._info.framesize, self._info.lenchunks):
+                    raw_data = struct.unpack(self._info.format, data[idx:idx + self._info.lenchunks])
+                    # Msg received: Notify on message callback
+                    if self.on_message:
+                        self.on_message(self._mac, self._to_dict(raw_data))
+            if self.on_disconnect:
+                self.on_disconnect(self._mac, False)
+
+        except bluetooth.btcommon.BluetoothError:
+            if self._running and self.on_disconnect:
+                self.on_disconnect(self._mac, True)
+            else:
+                raise bluetooth.BluetoothError(f"BT MAC {self._mac}: couldn't connect to the bluetooth interface")
+        except struct.error:
+            raise ConnectionError(f"BT MAC {self._mac}: error in decoding presentation frame!")
+        finally:
+            self._running = False
+            self._sock.close()

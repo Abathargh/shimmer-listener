@@ -1,7 +1,7 @@
 # shimmer-listener
 
 This is a project that started from the idea of having a general library that interacted with shimmer apps for tinyos, 
-inspired from the python demo scripts that can be found inside some of the sub-directories of the 
+inspired from the python demo scripts that can be found inside the sub-directories of the 
 [tinyos shimmer apps repository](https://github.com/ShimmerResearch/tinyos-shimmer).
 
 ## Contents
@@ -12,8 +12,11 @@ inspired from the python demo scripts that can be found inside some of the sub-d
     - [Windows](#windows)
     - [Debian-like](#debian-like)
 - [Usage](#usage)
+    - [Callbacks](#callbacks)
+- [Console Scripts](#console-scripts)
     - [shimmer-to-nodered](#shimmer-to-nodered)
-
+    - [shimmer-printer](#shimmer-printer)
+    - [shimmer-btslave](#shimmer-btslave)
 ## About
 
 This library allows you to connect to a Shimmer2 mote via Bluetooth both in Master and Slave mode, interacting with it 
@@ -21,7 +24,7 @@ via the shimmer-apps precedently introduced (even if it's possible to create cus
 
 For now, there's only support for the BluetoothMasterTest app for Master-mode motes. For what concerns Slave-mode motes, 
 a small initialization protocol (the **presentation** protocol) is used in order for the mote to let the master node know 
-about its data formats.
+about its data format.
 
 The received data can be handled via a data processing function that has to be passed at init time, where you define 
 what to do with each instance of incoming data (more on this in the example below).
@@ -130,20 +133,62 @@ a slave mote that runs its app that implements the shimmer-listener presentation
 ```python
 from shimmer_listener import bt_init, bt_listen, bt_close, BtMode
 
-def process_data(data):
+def process_data(mac, data):
     print(data)
 
+bt_init(mode=BtMode.MASTER)
 
-if __name__ == "__main__":       
-    bt_init(mode=BtMode.MASTER)
-
-    try:
-        bt_listen(process=process_data)
-    except KeyboardInterrupt:
-        bt_close()
+try:
+    bt_listen(process=process_data, message_handle=process_data)
+except KeyboardInterrupt:
+    bt_close()
 ```
 
-You can take a look at the **_console_scripts** module for a practical example.
+You can take a look at the **_console_scripts** module for some full examples practical example.
+
+### Callbacks
+
+A series of callbacks can be used and set as properties to intercept certain events:
+
+- **on_connect(mac: str, info: frameinfo) -> None**
+  
+    Called when a mote identified by **mac** succesfully connects. All the information
+    regarding the exchanged data format, obtained through *the presentatin protocol* are
+    accessible via **info**.
+
+- **on_message(mac: str, frame: Dict[str, Any]) -> None**
+  
+    Called when a message is received from a mote identified by **mac**. The message is
+    returned as a dict with the keys previously obtained from the *presentation protocol*.
+
+- **on_disconnect(mac: str, lost: bool) -> None**
+  
+    Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
+    event happened because the connection has been lost.
+
+```python
+from shimmer_listener import bt_init, bt_listen, BtMode
+
+def on_connect(mac, info):
+    print(f"BT MAC {mac}: received presentation frame, {info} ")
+
+def on_disconnect(mac, lost):
+    if lost:
+        print(f"BT MAC {mac}: connection lost")
+    else:
+        print(f"BT MAC {mac}: disconnecting")
+
+def on_message(mac, data):
+    print(f"BT MAC {mac}: got {data}")
+
+bt_init(mode=BtMode.MASTER)
+bt_listen(connect_handle=on_connect, message_handle=on_message,
+          disconnect_handle=on_disconnect)
+```
+
+## Console Scripts
+
+The following executable applications are shipped with the library and can be used once you install it.
 
 ### shimmer-to-nodered
 
@@ -162,4 +207,13 @@ every data frame it receives.
 
 ```bash
 shimmer-printer
+```
+
+### shimmer-btslave
+
+A simple application encapsulating the original example of the btMasterTest TinyOS app. By using it, 
+you start an app as a slave device connecting to the shimmer (in this case, the BT Master).
+
+```bash
+shimmer-btslave
 ```
