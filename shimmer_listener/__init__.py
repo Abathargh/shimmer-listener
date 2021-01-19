@@ -3,7 +3,7 @@ This library allows you to connect to a Shimmer2 mote via Bluetooth both in Mast
 mode, interacting with the applications on the mote.
 """
 
-from ._streams import BtSlaveInputStream, BtMasterInputStream, frameinfo, close_streams
+from ._streams import BtSlaveInputStream, BtMasterInputStream, frameinfo
 from ._slave import _slave_init, _slave_listen, _slave_close
 from ._master import _master_listen, _master_close
 
@@ -70,7 +70,6 @@ def bt_close() -> None:
     if _op_mode is None:
         raise ValueError("Trying to close a non initialized interface")
     close[_op_mode.index]()
-    close_streams()
 
     _op_mode = None
     _running = False

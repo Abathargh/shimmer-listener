@@ -1,7 +1,7 @@
 from typing import Optional, Callable, Dict, Any
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from threading import Thread, Lock
+from threading import Thread
 import bluetooth
 import struct
 
@@ -14,18 +14,6 @@ frameinfo = namedtuple("frameinfo", ["framesize", "lenchunks", "format", "keys"]
 
 # Incoming data if started as Slave is stored in tuples
 SlaveDataTuple = namedtuple("DataTuple", ["mac", "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"])
-
-# This list contains a reference to each open connection
-_open_conn = set()
-_mutex = Lock()
-
-
-def close_streams():
-    with _mutex:
-        open_copy = _open_conn.copy()
-    for stream in open_copy:
-        if stream.open:
-            stream.stop()
 
 
 class BtStream(ABC):
@@ -57,9 +45,6 @@ class BtStream(ABC):
         self._on_connect: Optional[Callable[[str, frameinfo], None]] = None
         self._on_message: Optional[Callable[[str, Dict[str, Any]], None]] = None
         self._on_disconnect: Optional[Callable[[str, bool], None]] = None
-
-        with _mutex:
-            _open_conn.add(self)
 
     def __eq__(self, other):
         if not isinstance(other, BtStream):
@@ -111,8 +96,6 @@ class BtStream(ABC):
         """
         if self._running:
             self._running = False
-            with _mutex:
-                _open_conn.discard(self)
 
     @abstractmethod
     def _loop(self):
