@@ -46,16 +46,6 @@ class BtStream(ABC):
         self._on_message: Optional[Callable[[str, Dict[str, Any]], None]] = None
         self._on_disconnect: Optional[Callable[[str, bool], None]] = None
 
-    def __eq__(self, other):
-        if not isinstance(other, BtStream):
-            return False
-        if other is self:
-            return True
-        return self._mac == other._mac
-
-    def __hash__(self):
-        return hash(self._mac)
-
     @property
     def on_connect(self):
         return self._on_connect
