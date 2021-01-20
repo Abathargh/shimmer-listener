@@ -12,11 +12,14 @@ inspired from the python demo scripts that can be found inside the sub-directori
     - [Windows](#windows)
     - [Debian-like](#debian-like)
 - [Usage](#usage)
+    - [Documentation](#documentation)
+    - [Bt Master example](#bt-master-example)
     - [Callbacks](#callbacks)
 - [Console Scripts](#console-scripts)
     - [shimmer-to-nodered](#shimmer-to-nodered)
     - [shimmer-printer](#shimmer-printer)
     - [shimmer-btslave](#shimmer-btslave)
+
   
 ## About
 
@@ -97,7 +100,7 @@ you should just install the following package:
 sudo apt install pi-bluetooth
 ```
 
-This was tested with using a Rpi 4.
+This was tested using a Rpi 4.
 
 **Other Debian-like**
 
@@ -124,7 +127,7 @@ chmod +x setup_bt.sh
 sudo ./setup_bt.sh
 ```
 
-The script was compiled from the instructions contained in these two stackoverflow responses and the full credit 
+The script is based on the instructions contained in these two stackoverflow responses, and the full credit
 for it goes to the authors of these answers. If something is not working, I advise you to directly 
 refer to these two links.
 
@@ -140,6 +143,12 @@ network by using:
 ```bash
 sudo hciconfig hci0 piscan
 ```
+
+### Documentation
+
+Full documentation is accessible at https://abathargh.github.io/shimmer-listener.
+
+### Bt Master example
 
 This is an example of the simplest application that just prints the incoming data instances in Master Mode, with 
 a slave mote that runs its app that implements the shimmer-listener presentation protocol:

@@ -12,7 +12,7 @@ from typing import Optional, Callable, Any, Dict
 from bluetooth import *
 import logging
 
-from ._streams import BtMasterInputStream, frameinfo
+from ._streams import BtMasterInputStream, Frameinfo
 
 # Bluetooth server socket that acts as a slave for multiple
 _bt_sock: BluetoothSocket
@@ -30,7 +30,7 @@ def _slave_init():
                       service_classes=[_uuid, SERIAL_PORT_CLASS], profiles=[SERIAL_PORT_PROFILE])
 
 
-def _slave_listen(connect_handle: Optional[Callable[[str, frameinfo], None]] = None,
+def _slave_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
                   message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
                   disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
     global _bt_sock

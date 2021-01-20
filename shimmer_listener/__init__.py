@@ -1,9 +1,30 @@
 """
-This library allows you to connect to a Shimmer2 mote via Bluetooth both in Master and Slave
+This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in Master and Slave
 mode, interacting with the applications on the mote.
+
+When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
+you have to implement the presentation protocol inside on the Shimmer nesC application. This protocol is a way
+to inform the Bt Master about the data format used when sending messages.
+
+The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully
+establishing a connection with the Bt Master. Its format is the following:
+
+```c
+typedef char key_string[MAX_STR_LEN];
+
+typedef struct {
+    uint8_t framesize;
+    uint8_t chunklen;
+    char format[MAX_FMT_LEN];
+    key_string keys[MAX_KEY_NUM];
+} frameinfo;
+```
+
+The presentation frame is automatically interpreted from the BtStream, so you don't have to do anything from this side
+of the communication.
 """
 
-from ._streams import BtSlaveInputStream, BtMasterInputStream, frameinfo
+from ._streams import BtStream, BtSlaveInputStream, BtMasterInputStream, Frameinfo
 from ._slave import _slave_init, _slave_listen, _slave_close
 from ._master import _master_listen, _master_close
 
@@ -11,18 +32,23 @@ from typing import Optional, Callable, Any, Dict, List
 import enum
 
 
-__all__ = ["bt_init", "bt_listen", "bt_close", "frameinfo", "BtMode", "BtSlaveInputStream"]
+__all__ = ["bt_init", "bt_listen", "bt_close", "Frameinfo", "BtMode", "BtStream",
+           "BtMasterInputStream", "BtSlaveInputStream"]
 
 
 class BtMode(enum.Enum):
     """
-    Used to represent the mode in which the program is acting towards the shimmer devices
+    Enum used to set the mode in which the library is acting towards the shimmer devices.
     """
+
     MASTER = 0
     SLAVE = 1
 
     @property
     def index(self):
+        """
+        Returns a numerical representation of the enum values, where MASTER = 0, SLAVE = 1.
+        """
         return self.value
 
 
@@ -36,8 +62,6 @@ def bt_init(mode: BtMode) -> None:
     """
     Initializes the bluetooth server socket interface.
     Call this at the beginning of your program.
-    :param mode: One between BtMode.MASTER or BtMode.SLAVE
-    :return: None
     """
     global _op_mode, _running
     if _running:
@@ -48,12 +72,12 @@ def bt_init(mode: BtMode) -> None:
     _running = True
 
 
-def bt_listen(connect_handle: Optional[Callable[[str, frameinfo], None]] = None,
+def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
               message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
               disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
     """
-    Starts the listen loop
-    :return: None
+    Starts the listen loop, attaching the passed handlers as event callbacks to each
+    stream that is started.
     """
     global _op_mode
     if _op_mode is None or not _running:
@@ -63,8 +87,7 @@ def bt_listen(connect_handle: Optional[Callable[[str, frameinfo], None]] = None,
 
 def bt_close() -> None:
     """
-    Gracefully stop any open connection
-    :return: None
+    Gracefully stops any open connection.
     """
     global _op_mode, _running
     if _op_mode is None:

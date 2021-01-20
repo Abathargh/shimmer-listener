@@ -12,7 +12,8 @@ logging.basicConfig(level=logging.INFO)
 
 def btmastertest_app():
     """
-    Loosely based on the bluetoothMasterTest.py app from https://github.com/ShimmerResearch/tinyos-shimmer
+    An example app to interact with the BluetoothMasterTest example in the tinyos.
+    Loosely based on the bluetoothMasterTest.py app from https://github.com/ShimmerResearch/tinyos-shimmer.
     """
 
     def on_message(mac, data):
@@ -30,9 +31,10 @@ def nodered_app():
     """
     Nodered compatibility example app.
 
-    usage: Forwards data to a specific socket port on the machine identified by the specified address.
-            Used along with a nodered instance where a tcp node acts as the data source.
-            [-h] --port PORT [--server SERVER]
+    It forwards data to a specific socket port on the machine identified by the specified address.
+    Used along with a nodered instance where a tcp node acts as the data source. You can specify the port
+    with the **-p** flag and the server address with the **-s** flag; the -p flag is mandatory, the default value for
+    -s is *localhost*.
     """
     c_data_socket: socket.socket
     mutex = Lock()
@@ -79,7 +81,7 @@ def nodered_app():
 
 def printer_app():
     """
-    Simple app that logs every action using user-defined callbacks
+    Simple app that logs every action using user-defined callbacks.
     """
     def on_connect(mac, info):
         logging.info(f"BT MAC {mac}: received presentation frame, {info} ")

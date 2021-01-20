@@ -13,7 +13,7 @@ import bluetooth
 import logging
 import time
 
-from ._streams import BtSlaveInputStream, frameinfo
+from ._streams import BtSlaveInputStream, Frameinfo
 
 # Lookup duration for the scan operation by the master
 # The RF port to use is the number 1
@@ -41,7 +41,7 @@ def _close_streams():
             stream.stop()
 
 
-def _master_listen(connect_handle: Optional[Callable[[str, frameinfo], None]] = None,
+def _master_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
                    message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
                    disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
     # We need to add a way to delete the stream from the open ones when it disconnects, so

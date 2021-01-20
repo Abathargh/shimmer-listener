@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>shimmer_listener API documentation</title>
+<meta name="description" content="This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in Master and Slave
+mode, interacting with the applications on the mote …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>shimmer_listener</code></h1>
+</header>
+<section id="section-intro">
+<p>This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in Master and Slave
+mode, interacting with the applications on the mote.</p>
+<p>When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
+you have to implement the presentation protocol inside on the Shimmer nesC application. This protocol is a way
+to inform the Bt Master about the data format used when sending messages.</p>
+<p>The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully
+establishing a connection with the Bt Master. Its format is the following:</p>
+<pre><code class="language-c">typedef char key_string[MAX_STR_LEN];
+
+typedef struct {
+    uint8_t framesize;
+    uint8_t chunklen;
+    char format[MAX_FMT_LEN];
+    key_string keys[MAX_KEY_NUM];
+} frameinfo;
+</code></pre>
+<p>The presentation frame is automatically interpreted from the BtStream, so you don't have to do anything from this side
+of the communication.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in Master and Slave
+mode, interacting with the applications on the mote.
+
+When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
+you have to implement the presentation protocol inside on the Shimmer nesC application. This protocol is a way
+to inform the Bt Master about the data format used when sending messages.
+
+The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully
+establishing a connection with the Bt Master. Its format is the following:
+
+```c
+typedef char key_string[MAX_STR_LEN];
+
+typedef struct {
+    uint8_t framesize;
+    uint8_t chunklen;
+    char format[MAX_FMT_LEN];
+    key_string keys[MAX_KEY_NUM];
+} frameinfo;
+```
+
+The presentation frame is automatically interpreted from the BtStream, so you don&#39;t have to do anything from this side
+of the communication.
+&#34;&#34;&#34;
+
+from ._streams import BtStream, BtSlaveInputStream, BtMasterInputStream, Frameinfo
+from ._slave import _slave_init, _slave_listen, _slave_close
+from ._master import _master_listen, _master_close
+
+from typing import Optional, Callable, Any, Dict, List
+import enum
+
+
+__all__ = [&#34;bt_init&#34;, &#34;bt_listen&#34;, &#34;bt_close&#34;, &#34;Frameinfo&#34;, &#34;BtMode&#34;, &#34;BtStream&#34;,
+           &#34;BtMasterInputStream&#34;, &#34;BtSlaveInputStream&#34;]
+
+
+class BtMode(enum.Enum):
+    &#34;&#34;&#34;
+    Enum used to set the mode in which the library is acting towards the shimmer devices.
+    &#34;&#34;&#34;
+
+    MASTER = 0
+    SLAVE = 1
+
+    @property
+    def index(self):
+        &#34;&#34;&#34;
+        Returns a numerical representation of the enum values, where MASTER = 0, SLAVE = 1.
+        &#34;&#34;&#34;
+        return self.value
+
+
+listen: List[Callable] = [_master_listen, _slave_listen]
+close: List[Callable] = [_master_close, _slave_close]
+_op_mode: Optional[BtMode] = None
+_running: bool = False
+
+
+def bt_init(mode: BtMode) -&gt; None:
+    &#34;&#34;&#34;
+    Initializes the bluetooth server socket interface.
+    Call this at the beginning of your program.
+    &#34;&#34;&#34;
+    global _op_mode, _running
+    if _running:
+        raise ValueError(&#34;Trying to initialize an already started interface&#34;)
+    if mode == BtMode.SLAVE:
+        _slave_init()
+    _op_mode = mode
+    _running = True
+
+
+def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
+              message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+              disconnect_handle: Optional[Callable[[str, bool], None]] = None) -&gt; None:
+    &#34;&#34;&#34;
+    Starts the listen loop, attaching the passed handlers as event callbacks to each
+    stream that is started.
+    &#34;&#34;&#34;
+    global _op_mode
+    if _op_mode is None or not _running:
+        raise ValueError(&#34;Listen operation on non initialized interface&#34;)
+    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle)
+
+
+def bt_close() -&gt; None:
+    &#34;&#34;&#34;
+    Gracefully stops any open connection.
+    &#34;&#34;&#34;
+    global _op_mode, _running
+    if _op_mode is None:
+        raise ValueError(&#34;Trying to close a non initialized interface&#34;)
+    close[_op_mode.index]()
+
+    _op_mode = None
+    _running = False</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="shimmer_listener.console_scripts" href="console_scripts.html">shimmer_listener.console_scripts</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="shimmer_listener.bt_init"><code class="name flex">
+<span>def <span class="ident">bt_init</span></span>(<span>mode: <a title="shimmer_listener.BtMode" href="#shimmer_listener.BtMode">BtMode</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initializes the bluetooth server socket interface.
+Call this at the beginning of your program.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bt_init(mode: BtMode) -&gt; None:
+    &#34;&#34;&#34;
+    Initializes the bluetooth server socket interface.
+    Call this at the beginning of your program.
+    &#34;&#34;&#34;
+    global _op_mode, _running
+    if _running:
+        raise ValueError(&#34;Trying to initialize an already started interface&#34;)
+    if mode == BtMode.SLAVE:
+        _slave_init()
+    _op_mode = mode
+    _running = True</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.bt_listen"><code class="name flex">
+<span>def <span class="ident">bt_listen</span></span>(<span>connect_handle: Union[Callable[[str, shimmer_listener._streams.Frameinfo], NoneType], NoneType] = None, message_handle: Union[Callable[[str, Dict[str, Any]], NoneType], NoneType] = None, disconnect_handle: Union[Callable[[str, bool], NoneType], NoneType] = None) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Starts the listen loop, attaching the passed handlers as event callbacks to each
+stream that is started.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
+              message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+              disconnect_handle: Optional[Callable[[str, bool], None]] = None) -&gt; None:
+    &#34;&#34;&#34;
+    Starts the listen loop, attaching the passed handlers as event callbacks to each
+    stream that is started.
+    &#34;&#34;&#34;
+    global _op_mode
+    if _op_mode is None or not _running:
+        raise ValueError(&#34;Listen operation on non initialized interface&#34;)
+    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle)</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.bt_close"><code class="name flex">
+<span>def <span class="ident">bt_close</span></span>(<span>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gracefully stops any open connection.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bt_close() -&gt; None:
+    &#34;&#34;&#34;
+    Gracefully stops any open connection.
+    &#34;&#34;&#34;
+    global _op_mode, _running
+    if _op_mode is None:
+        raise ValueError(&#34;Trying to close a non initialized interface&#34;)
+    close[_op_mode.index]()
+
+    _op_mode = None
+    _running = False</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="shimmer_listener.Frameinfo"><code class="flex name class">
+<span>class <span class="ident">Frameinfo</span></span>
+<span>(</span><span>framesize, lenchunks, format, keys)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A description of the format used by the shimmer device to communicate. The data received through the
+presentation protocol at startup is contained in an instance of this class.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Frameinfo(namedtuple(&#34;frameinfo&#34;, [&#34;framesize&#34;, &#34;lenchunks&#34;, &#34;format&#34;, &#34;keys&#34;])):
+    &#34;&#34;&#34;A description of the format used by the shimmer device to communicate. The data received through the
+    presentation protocol at startup is contained in an instance of this class.&#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>shimmer_listener._streams.frameinfo</li>
+<li>builtins.tuple</li>
+</ul>
+</dd>
+<dt id="shimmer_listener.BtMode"><code class="flex name class">
+<span>class <span class="ident">BtMode</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum used to set the mode in which the library is acting towards the shimmer devices.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BtMode(enum.Enum):
+    &#34;&#34;&#34;
+    Enum used to set the mode in which the library is acting towards the shimmer devices.
+    &#34;&#34;&#34;
+
+    MASTER = 0
+    SLAVE = 1
+
+    @property
+    def index(self):
+        &#34;&#34;&#34;
+        Returns a numerical representation of the enum values, where MASTER = 0, SLAVE = 1.
+        &#34;&#34;&#34;
+        return self.value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="shimmer_listener.BtMode.MASTER"><code class="name">var <span class="ident">MASTER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="shimmer_listener.BtMode.SLAVE"><code class="name">var <span class="ident">SLAVE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="shimmer_listener.BtMode.index"><code class="name">var <span class="ident">index</span></code></dt>
+<dd>
+<div class="desc"><p>Returns a numerical representation of the enum values, where MASTER = 0, SLAVE = 1.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def index(self):
+    &#34;&#34;&#34;
+    Returns a numerical representation of the enum values, where MASTER = 0, SLAVE = 1.
+    &#34;&#34;&#34;
+    return self.value</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="shimmer_listener.BtStream"><code class="flex name class">
+<span>class <span class="ident">BtStream</span></span>
+<span>(</span><span>mac: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstraction of a Bluetooth input stream coming from a mote with given mac over a given socket.
+A series of callbacks can be used and set as properties to intercept certain events:</p>
+<p>on_connect(mac: str, info: frameinfo) -&gt; None
+Called when a mote identified by <strong>mac</strong> succesfully connects. All the information
+regarding the exchanged data format, obtained through <em>the presentatin protocol</em> are
+accessible via <strong>info</strong>.
+on_message(mac: str, frame: Dict[str, Any]) -&gt; None
+Called when a message is received from a mote identified by <strong>mac</strong>. The message is
+returned as a dict with the keys previously obtained from the <em>presentation protocol</em>.
+on_disconnect(mac: str, lost: bool) -&gt; None
+Called when a mote identified by <strong>mac</strong> disconnects. If <strong>lost</strong> is true, the disconnect
+event happened because the connection has been lost.</p>
+<p>Abstract class that describes and implements common functionalities of the Bt streams: the start/stop
+mechanism, callbacks, identification via Bt mac address.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BtStream(ABC):
+    &#34;&#34;&#34;
+    Abstraction of a Bluetooth input stream coming from a mote with given mac over a given socket.
+    A series of callbacks can be used and set as properties to intercept certain events:
+
+    on_connect(mac: str, info: frameinfo) -&gt; None
+        Called when a mote identified by **mac** succesfully connects. All the information
+        regarding the exchanged data format, obtained through *the presentatin protocol* are
+        accessible via **info**.
+    on_message(mac: str, frame: Dict[str, Any]) -&gt; None
+        Called when a message is received from a mote identified by **mac**. The message is
+        returned as a dict with the keys previously obtained from the *presentation protocol*.
+    on_disconnect(mac: str, lost: bool) -&gt; None
+        Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
+        event happened because the connection has been lost.
+    &#34;&#34;&#34;
+
+    def __init__(self, mac: str):
+        &#34;&#34;&#34;
+        Abstract class that describes and implements common functionalities of the Bt streams: the start/stop
+        mechanism, callbacks, identification via Bt mac address.
+        &#34;&#34;&#34;
+        super().__init__()
+        self._mac = mac
+        self._running = False
+
+        # Callbacks
+        self._on_connect: Optional[Callable[[str, Frameinfo], None]] = None
+        self._on_message: Optional[Callable[[str, Dict[str, Any]], None]] = None
+        self._on_disconnect: Optional[Callable[[str, bool], None]] = None
+
+    @property
+    def on_connect(self):
+        return self._on_connect
+
+    @on_connect.setter
+    def on_connect(self, callback):
+        self._on_connect = callback
+
+    @property
+    def on_message(self):
+        return self._on_message
+
+    @on_message.setter
+    def on_message(self, callback):
+        self._on_message = callback
+
+    @property
+    def on_disconnect(self):
+        return self._on_disconnect
+
+    @on_disconnect.setter
+    def on_disconnect(self, callback):
+        self._on_disconnect = callback
+
+    @property
+    def open(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Property that is True if the BtStream was started and is currently active.
+        &#34;&#34;&#34;
+        return self._running
+
+    def stop(self) -&gt; None:
+        &#34;&#34;&#34;
+        Stops the Input stream: N.B. if this is called while when the stream loop is doing work,
+        that iteration of the loop won&#39;t be stopped.
+        &#34;&#34;&#34;
+        if self._running:
+            self._running = False
+
+    @abstractmethod
+    def _loop(self):
+        pass
+
+    def start(self):
+        &#34;&#34;&#34;
+        Starts the Input stream, non blocking.
+        &#34;&#34;&#34;
+        if not self._running:
+            Thread(target=self._loop).start()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>shimmer_listener._streams.BtMasterInputStream</li>
+<li>shimmer_listener._streams.BtSlaveInputStream</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="shimmer_listener.BtStream.on_connect"><code class="name">var <span class="ident">on_connect</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def on_connect(self):
+    return self._on_connect</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.BtStream.on_message"><code class="name">var <span class="ident">on_message</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def on_message(self):
+    return self._on_message</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.BtStream.on_disconnect"><code class="name">var <span class="ident">on_disconnect</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def on_disconnect(self):
+    return self._on_disconnect</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.BtStream.open"><code class="name">var <span class="ident">open</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>Property that is True if the BtStream was started and is currently active.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def open(self) -&gt; bool:
+    &#34;&#34;&#34;
+    Property that is True if the BtStream was started and is currently active.
+    &#34;&#34;&#34;
+    return self._running</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shimmer_listener.BtStream.stop"><code class="name flex">
+<span>def <span class="ident">stop</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Stops the Input stream: N.B. if this is called while when the stream loop is doing work,
+that iteration of the loop won't be stopped.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stop(self) -&gt; None:
+    &#34;&#34;&#34;
+    Stops the Input stream: N.B. if this is called while when the stream loop is doing work,
+    that iteration of the loop won&#39;t be stopped.
+    &#34;&#34;&#34;
+    if self._running:
+        self._running = False</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.BtStream.start"><code class="name flex">
+<span>def <span class="ident">start</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Starts the Input stream, non blocking.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start(self):
+    &#34;&#34;&#34;
+    Starts the Input stream, non blocking.
+    &#34;&#34;&#34;
+    if not self._running:
+        Thread(target=self._loop).start()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="shimmer_listener.BtMasterInputStream"><code class="flex name class">
+<span>class <span class="ident">BtMasterInputStream</span></span>
+<span>(</span><span>mac: str, sock: bluetooth.bluez.BluetoothSocket, uuid: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstraction for the data input stream coming from a master device running
+on a shimmer2 mote.</p>
+<p>Initializes a new input stream from a Master mote.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BtMasterInputStream(BtStream):
+    &#34;&#34;&#34;
+    Abstraction for the data input stream coming from a master device running
+    on a shimmer2 mote.
+    &#34;&#34;&#34;
+
+    # Standard framesize in the tinyos Bluetooth implementation taken from the shimmer apps repo
+    # In this case a frame contains exactly one chunk, hence framesize = chunklen
+    _framesize = 22
+    _slave_frameinfo = Frameinfo(_framesize, _framesize, &#34;HHHHHHHB&#34;,
+                                 [&#34;mac&#34;, &#34;accel_x&#34;, &#34;accel_y&#34;, &#34;accel_z&#34;, &#34;gyro_x&#34;, &#34;gyro_y&#34;, &#34;gyro_z&#34;])
+
+    def __init__(self, mac: str, sock: bluetooth.BluetoothSocket, uuid: str):
+        &#34;&#34;&#34;
+        Initializes a new input stream from a Master mote.
+        &#34;&#34;&#34;
+        super().__init__(mac=mac)
+        self._uuid = uuid
+        self._sock = sock
+
+    def _loop(self) -&gt; None:
+        if self.on_connect:
+            self.on_connect(self._mac, self._slave_frameinfo)
+
+        self._running = True
+        try:
+            while self._running:
+                numbytes = 0
+                ddata = bytearray()
+                while numbytes &lt; self._framesize:
+                    ddata += bytearray(self._sock.recv(self._framesize))
+                    numbytes = len(ddata)
+
+                # the following data split refers to the 22 B long frame structure discussed earlier
+                # the first seven and the last two fields (crc, end) are ignored since we don&#39;t need them
+                # in this particular app
+                data = ddata[0:self._framesize]
+                (accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, _, _) = struct.unpack(&#34;HHHHHHHB&#34;, data[7:22])
+                fmt_data = SlaveDataTuple(self._mac, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z)
+                if self.on_message:
+                    self.on_message(self._mac, fmt_data._asdict())
+            if self.on_disconnect:
+                self.on_disconnect(self._mac, False)
+        except bluetooth.btcommon.BluetoothError:
+            if self.on_disconnect:
+                self.on_disconnect(self._mac, True)
+        finally:
+            self._running = False
+            self._sock.close()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>shimmer_listener._streams.BtStream</li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+<dt id="shimmer_listener.BtSlaveInputStream"><code class="flex name class">
+<span>class <span class="ident">BtSlaveInputStream</span></span>
+<span>(</span><span>mac: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstraction for the data input stream coming from a slave device running on a shimmer2 mote.</p>
+<p>The first frame sent by the shimmer is special and contains information about its
+data format. The size is fixed by a simple protocol to 112 B. Its internal format
+is made as such:</p>
+<ul>
+<li>1 unsigned byte containing the message frame size that is going to be used in the communication.</li>
+<li>1 unsigned byte containing the chunk size of each chunk packed into a frame.</li>
+<li>a string of length 10, containing the format of packed data contained in each chunk.</li>
+<li>a string of length 100, containing a max of 10, 10 char long key names of each value packed in the chunk.</li>
+</ul>
+<p>Initializes a new input stream from a Master mote.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BtSlaveInputStream(BtStream):
+    &#34;&#34;&#34;
+    Abstraction for the data input stream coming from a slave device running on a shimmer2 mote.
+
+    The first frame sent by the shimmer is special and contains information about its
+    data format. The size is fixed by a simple protocol to 112 B. Its internal format
+    is made as such:
+
+    - 1 unsigned byte containing the message frame size that is going to be used in the communication.
+    - 1 unsigned byte containing the chunk size of each chunk packed into a frame.
+    - a string of length 10, containing the format of packed data contained in each chunk.
+    - a string of length 100, containing a max of 10, 10 char long key names of each value packed in the chunk.
+    &#34;&#34;&#34;
+    _pres_frame_size = 112
+    _pres_frame_fmt = &#34;BB10s100s&#34;
+
+    def __init__(self, mac: str):
+        &#34;&#34;&#34;
+        Initializes a new input stream from a Master mote.
+        &#34;&#34;&#34;
+        super().__init__(mac=mac)
+        self._info = None
+        self._sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+
+    def _to_dict(self, raw_data: tuple):
+        d = {}
+        for idx, key in enumerate(self._info.keys):
+            d[key] = raw_data[idx]
+        return d
+
+    def _init_frameinfo(self, info: bytearray):
+        fmt_unp = struct.unpack(BtSlaveInputStream._pres_frame_fmt, info)
+        framesize = fmt_unp[0]
+        lenchunks = fmt_unp[1]
+        chunk_fmt = fmt_unp[2].decode().rstrip(&#34;\x00&#34;)
+
+        unfmt_keys = fmt_unp[3].decode()
+        data_keys = []
+
+        key_len = 10
+        keys_len = 100
+        for base in range(0, keys_len, key_len):
+            data_keys.append(unfmt_keys[base:base + key_len].rstrip(&#34;\x00&#34;))
+        data_keys = [elem for elem in data_keys if elem != &#39;&#39;]
+        self._info = Frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
+
+    def _loop(self):
+        try:
+            # Init BT socket and loop
+            rf_port = 1
+            self._sock.connect((self._mac, rf_port))
+            self._running = True
+
+            # Wait for a 112 B presentation frame
+            fmt_len = 0
+            fmt_frame = bytearray()
+            while fmt_len &lt; BtSlaveInputStream._pres_frame_size:
+                fmt_frame += bytearray(self._sock.recv(BtSlaveInputStream._pres_frame_size))
+                fmt_len = len(fmt_frame)
+
+            # Parse presentation and notify the on connect callback
+            self._init_frameinfo(fmt_frame)
+            if self.on_connect:
+                self.on_connect(self._mac, self._info)
+
+            # Data reading loop based on frameinfo format
+            while self._running:
+                data_len = 0
+                data = bytearray()
+                while data_len &lt; self._info.framesize:
+                    data += bytearray(self._sock.recv(self._info.framesize))
+                    data_len = len(data)
+                for idx in range(0, self._info.framesize, self._info.lenchunks):
+                    raw_data = struct.unpack(self._info.format, data[idx:idx + self._info.lenchunks])
+                    # Msg received: Notify on message callback
+                    if self.on_message:
+                        self.on_message(self._mac, self._to_dict(raw_data))
+            if self.on_disconnect:
+                self.on_disconnect(self._mac, False)
+
+        except bluetooth.btcommon.BluetoothError:
+            if self._running and self.on_disconnect:
+                self.on_disconnect(self._mac, True)
+            else:
+                raise bluetooth.BluetoothError(f&#34;BT MAC {self._mac}: couldn&#39;t connect to the bluetooth interface&#34;)
+        except struct.error:
+            raise ConnectionError(f&#34;BT MAC {self._mac}: error in decoding presentation frame!&#34;)
+        finally:
+            self._running = False
+            self._sock.close()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>shimmer_listener._streams.BtStream</li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="shimmer_listener.console_scripts" href="console_scripts.html">shimmer_listener.console_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="shimmer_listener.bt_init" href="#shimmer_listener.bt_init">bt_init</a></code></li>
+<li><code><a title="shimmer_listener.bt_listen" href="#shimmer_listener.bt_listen">bt_listen</a></code></li>
+<li><code><a title="shimmer_listener.bt_close" href="#shimmer_listener.bt_close">bt_close</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="shimmer_listener.Frameinfo" href="#shimmer_listener.Frameinfo">Frameinfo</a></code></h4>
+</li>
+<li>
+<h4><code><a title="shimmer_listener.BtMode" href="#shimmer_listener.BtMode">BtMode</a></code></h4>
+<ul class="">
+<li><code><a title="shimmer_listener.BtMode.index" href="#shimmer_listener.BtMode.index">index</a></code></li>
+<li><code><a title="shimmer_listener.BtMode.MASTER" href="#shimmer_listener.BtMode.MASTER">MASTER</a></code></li>
+<li><code><a title="shimmer_listener.BtMode.SLAVE" href="#shimmer_listener.BtMode.SLAVE">SLAVE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="shimmer_listener.BtStream" href="#shimmer_listener.BtStream">BtStream</a></code></h4>
+<ul class="two-column">
+<li><code><a title="shimmer_listener.BtStream.stop" href="#shimmer_listener.BtStream.stop">stop</a></code></li>
+<li><code><a title="shimmer_listener.BtStream.start" href="#shimmer_listener.BtStream.start">start</a></code></li>
+<li><code><a title="shimmer_listener.BtStream.on_connect" href="#shimmer_listener.BtStream.on_connect">on_connect</a></code></li>
+<li><code><a title="shimmer_listener.BtStream.on_message" href="#shimmer_listener.BtStream.on_message">on_message</a></code></li>
+<li><code><a title="shimmer_listener.BtStream.on_disconnect" href="#shimmer_listener.BtStream.on_disconnect">on_disconnect</a></code></li>
+<li><code><a title="shimmer_listener.BtStream.open" href="#shimmer_listener.BtStream.open">open</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="shimmer_listener.BtMasterInputStream" href="#shimmer_listener.BtMasterInputStream">BtMasterInputStream</a></code></h4>
+</li>
+<li>
+<h4><code><a title="shimmer_listener.BtSlaveInputStream" href="#shimmer_listener.BtSlaveInputStream">BtSlaveInputStream</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

@@ -5,15 +5,15 @@ from threading import Thread
 import bluetooth
 import struct
 
-"""
-Frame info: a frame may contain multiple "chunks"
-    e.g. the SimpleAccel app sends frames of 120 B that contain 15 8 byte
-        chunks of packed data with format "hhhh"
-"""
-frameinfo = namedtuple("frameinfo", ["framesize", "lenchunks", "format", "keys"])
 
-# Incoming data if started as Slave is stored in tuples
+class Frameinfo(namedtuple("frameinfo", ["framesize", "lenchunks", "format", "keys"])):
+    """A description of the format used by the shimmer device to communicate. The data received through the
+    presentation protocol at startup is contained in an instance of this class."""
+    pass
+
+
 SlaveDataTuple = namedtuple("DataTuple", ["mac", "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"])
+"""Incoming data format for the only slave app supported"""
 
 
 class BtStream(ABC):
@@ -35,14 +35,15 @@ class BtStream(ABC):
 
     def __init__(self, mac: str):
         """
-        :param mac: the BT MAC address of the mote
+        Abstract class that describes and implements common functionalities of the Bt streams: the start/stop
+        mechanism, callbacks, identification via Bt mac address.
         """
         super().__init__()
         self._mac = mac
         self._running = False
 
         # Callbacks
-        self._on_connect: Optional[Callable[[str, frameinfo], None]] = None
+        self._on_connect: Optional[Callable[[str, Frameinfo], None]] = None
         self._on_message: Optional[Callable[[str, Dict[str, Any]], None]] = None
         self._on_disconnect: Optional[Callable[[str, bool], None]] = None
 
@@ -73,16 +74,14 @@ class BtStream(ABC):
     @property
     def open(self) -> bool:
         """
-        Property that returns True if the BtStream is still on
-        :return: bool
+        Property that is True if the BtStream was started and is currently active.
         """
         return self._running
 
     def stop(self) -> None:
         """
-        Stops the Input stream: N.B. if this is called while inside an iteration
-        of the run method, that iteration won't be stopped
-        :return: None
+        Stops the Input stream: N.B. if this is called while when the stream loop is doing work,
+        that iteration of the loop won't be stopped.
         """
         if self._running:
             self._running = False
@@ -92,6 +91,9 @@ class BtStream(ABC):
         pass
 
     def start(self):
+        """
+        Starts the Input stream, non blocking.
+        """
         if not self._running:
             Thread(target=self._loop).start()
 
@@ -105,16 +107,12 @@ class BtMasterInputStream(BtStream):
     # Standard framesize in the tinyos Bluetooth implementation taken from the shimmer apps repo
     # In this case a frame contains exactly one chunk, hence framesize = chunklen
     _framesize = 22
-    _slave_frameinfo = frameinfo(_framesize, _framesize, "HHHHHHHB",
+    _slave_frameinfo = Frameinfo(_framesize, _framesize, "HHHHHHHB",
                                  ["mac", "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z"])
 
     def __init__(self, mac: str, sock: bluetooth.BluetoothSocket, uuid: str):
         """
-        Initializes a new input stream from a Master mote
-
-        :param mac: the BT MAC address of the mote sending data
-        :param sock: the local socket bound to the mote
-        :param uuid: the uuid of the service that is being advertised
+        Initializes a new input stream from a Master mote.
         """
         super().__init__(mac=mac)
         self._uuid = uuid
@@ -169,8 +167,7 @@ class BtSlaveInputStream(BtStream):
 
     def __init__(self, mac: str):
         """
-        Initializes a new input stream from a Master mote
-        :param mac: the BT MAC address of the mote sending data
+        Initializes a new input stream from a Master mote.
         """
         super().__init__(mac=mac)
         self._info = None
@@ -196,7 +193,7 @@ class BtSlaveInputStream(BtStream):
         for base in range(0, keys_len, key_len):
             data_keys.append(unfmt_keys[base:base + key_len].rstrip("\x00"))
         data_keys = [elem for elem in data_keys if elem != '']
-        self._info = frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
+        self._info = Frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
 
     def _loop(self):
         try:
