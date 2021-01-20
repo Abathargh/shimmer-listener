@@ -40,7 +40,7 @@ def nodered_app():
     mutex = Lock()
 
     def on_connect(mac, info):
-        logging.info(f"BT MAC {mac}: received presentation frame, {info} ")
+        logging.info(f"BT MAC {mac}: received presentation frame, {info}")
 
     def on_disconnect(mac, lost):
         if lost:
