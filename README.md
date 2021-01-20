@@ -17,6 +17,7 @@ inspired from the python demo scripts that can be found inside the sub-directori
     - [shimmer-to-nodered](#shimmer-to-nodered)
     - [shimmer-printer](#shimmer-printer)
     - [shimmer-btslave](#shimmer-btslave)
+  
 ## About
 
 This library allows you to connect to a Shimmer2 mote via Bluetooth both in Master and Slave mode, interacting with it 
@@ -87,6 +88,19 @@ pip install .
 
 ### Debian-like
 
+**N.B. Ubuntu for Raspberry Pi**
+
+When trying to make the library work on Ubuntu 20.10 for Raspberry Pi, 
+you should just install the following package:
+
+```bash
+sudo apt install pi-bluetooth
+```
+
+This was tested with using a Rpi 4.
+
+**Other Debian-like**
+
 The library uses pybluez, so you will probably have to install **libbluetooth-dev** and **bluez**.
 On debian-like:
 
@@ -134,12 +148,12 @@ a slave mote that runs its app that implements the shimmer-listener presentation
 from shimmer_listener import bt_init, bt_listen, bt_close, BtMode
 
 def process_data(mac, data):
-    print(data)
+    print(f"Data from {mac}: {data}")
 
 bt_init(mode=BtMode.MASTER)
 
 try:
-    bt_listen(process=process_data, message_handle=process_data)
+    bt_listen(message_handle=process_data)
 except KeyboardInterrupt:
     bt_close()
 ```
