@@ -134,7 +134,7 @@ refer to these two links.
 
 ## Usage
 
-If you are on a debian-like system, and you're using the slave-mode, your machine must be discoverable in the bluetooth 
+If you are on a debian-like system, your machine will be discoverable in the bluetooth 
 network by using:
 
 ```bash

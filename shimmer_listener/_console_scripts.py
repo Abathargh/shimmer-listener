@@ -27,8 +27,24 @@ def btmastertest_app():
 
 
 def nodered_app():
+    """
+    Nodered compatibility example app.
+
+    usage: Forwards data to a specific socket port on the machine identified by the specified address.
+            Used along with a nodered instance where a tcp node acts as the data source.
+            [-h] --port PORT [--server SERVER]
+    """
     c_data_socket: socket.socket
     mutex = Lock()
+
+    def on_connect(mac, info):
+        logging.info(f"BT MAC {mac}: received presentation frame, {info} ")
+
+    def on_disconnect(mac, lost):
+        if lost:
+            logging.error(f"BT MAC {mac}: connection lost")
+        else:
+            logging.info(f"BT MAC {mac}: disconnecting")
 
     # The newline char is the data separator used in order for the tcp
     # node in node-red to understand that an instance of incoming data is arrived
@@ -52,7 +68,8 @@ def nodered_app():
     c_data_socket.connect((args.server, args.port))
 
     try:
-        bt_listen(message_handle=on_message)
+        bt_listen(connect_handle=on_connect, message_handle=on_message,
+                  disconnect_handle=on_disconnect)
     except bluetooth.btcommon.BluetoothError as be:
         logging.error(be)
         bt_close()
@@ -61,6 +78,9 @@ def nodered_app():
 
 
 def printer_app():
+    """
+    Simple app that logs every action using user-defined callbacks
+    """
     def on_connect(mac, info):
         logging.info(f"BT MAC {mac}: received presentation frame, {info} ")
 
