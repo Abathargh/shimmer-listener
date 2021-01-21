@@ -6,21 +6,19 @@ inspired from the python demo scripts that can be found inside the sub-directori
 
 ## Contents
 
-- [shimmer-listener](#shimmer-listener)
-  - [Contents](#contents)
-  - [About](#about)
-    - [Presentation protocol](#presentation-protocol)
-  - [Installation](#installation)
-    - [Windows](#windows)
-    - [Debian-like](#debian-like)
-  - [Usage](#usage)
-    - [Documentation](#documentation)
-    - [Bt Master example](#bt-master-example)
-    - [Callbacks](#callbacks)
-  - [Console Scripts](#console-scripts)
-    - [shimmer-to-nodered](#shimmer-to-nodered)
-    - [shimmer-printer](#shimmer-printer)
-    - [shimmer-btslave](#shimmer-btslave)
+- [About](#about)
+  - [Presentation protocol](#presentation-protocol)
+- [Installation](#installation)
+  - [Windows](#windows)
+  - [Debian-like](#debian-like)
+- [Usage](#usage)
+  - [Documentation](#documentation)
+  - [Bt Master example](#bt-master-example)
+  - [Callbacks](#callbacks)
+- [Console Scripts](#console-scripts)
+  - [shimmer-to-nodered](#shimmer-to-nodered)
+  - [shimmer-printer](#shimmer-printer)
+  - [shimmer-btslave](#shimmer-btslave)
 
   
 ## About
@@ -93,7 +91,7 @@ pip install .
 
 **IMPORTANT**
 
-During testing on Win10 with Python 3.7 and 3.8, using pybluez 0.23, strange runtime error (OSError) started popping out. For now, if this happens, the only thing that seems to work 100% of the times is installing by cloning the repository and using the setup.py script as suggested by @demanbart in [this comment](https://github.com/pybluez/pybluez/issues/180#issuecomment-397547920):
+During testing on Win10 with Python 3.7 and 3.8, using pybluez 0.23, strange runtime errors (OSError) started popping out. For now, if this happens, the only thing that seems to work 100% of the times is installing by cloning the repository and using the setup.py script as suggested by @demanbart in [this comment](https://github.com/pybluez/pybluez/issues/180#issuecomment-397547920):
 
 ```bash
 git clone https://github.com/pybluez/pybluez
