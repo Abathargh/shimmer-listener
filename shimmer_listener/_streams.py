@@ -198,6 +198,8 @@ class BtSlaveInputStream(BtStream):
     def _loop(self):
         try:
             # Init BT socket and loop
+            # BUG in Win10 implementation, this will try to connect to previously paired
+            # devices, even when not on or close enough, raising an OSError
             rf_port = 1
             self._sock.connect((self._mac, rf_port))
             self._running = True
