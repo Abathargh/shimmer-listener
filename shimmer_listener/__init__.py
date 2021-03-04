@@ -3,7 +3,7 @@ This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in M
 mode, interacting with the applications on the mote.
 
 When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
-you have to implement the presentation protocol inside on the Shimmer nesC application. This protocol is a way
+you have to implement the presentation protocol inside of the Shimmer nesC application. This protocol is a way
 to inform the Bt Master about the data format used when sending messages.
 
 The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully

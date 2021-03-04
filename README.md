@@ -27,8 +27,8 @@ This library allows you to connect to a Shimmer2 mote via Bluetooth both in Mast
 via the shimmer-apps precedently introduced (even if it's possible to create custom interactions).
 
 For now, there's only support for the BluetoothMasterTest app for Master-mode motes. For what concerns Slave-mode motes, 
-a small initialization protocol (the **presentation** protocol) is used in order for the mote to let the master node know 
-about its data format.
+a small initialization protocol (the **presentation** protocol) is used to let the master node know about the data format 
+used by the mote.
 
 The received data can be handled via a data processing function that has to be passed at init time, where you define 
 what to do with each instance of incoming data (more on this in the example below).
