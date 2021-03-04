@@ -57,8 +57,8 @@ def _master_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = 
             logging.info(f"Found device with MAC {device[0]}, ID {device[1]}")
             if _is_shimmer_device(device[1]):
                 try:
-                    logging.info(f"Pairing with {device[0]}..")
                     if device[0] not in _open_conn:
+                        logging.info(f"Pairing with {device[0]}..")
                         in_stream = BtSlaveInputStream(mac=device[0])
                         in_stream.on_connect = connect_handle
                         in_stream.on_message = message_handle
