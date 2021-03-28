@@ -1,7 +1,9 @@
 #! /usr/bin/env bash
 
 dbus_bluez="/etc/systemd/system/dbus-org.bluez.service"
-cat $dbus_bluez | sed -e "s/<ExecStart=\/usr\/lib\/bluetooth\/bluetoothd>/ExecStart=\/usr\/lib\/bluetooth\/bluetoothd -C/" > "$dbus_bluez".tmp && mv "$dbus_bluez".tmp dbus_bluez
+
+cp "$dbus_bluez" "$dbus_bluez"_backup
+cat $dbus_bluez | sed -e "s/<ExecStart=\/usr\/lib\/bluetooth\/bluetoothd>/ExecStart=\/usr\/lib\/bluetooth\/bluetoothd -C/" > "$dbus_bluez".tmp && mv "$dbus_bluez".tmp "$dbus_bluez"
 sdptool add SP
 usermod -G bluetooth -a "${USER}"
 chgrp bluetooth /var/run/sdp
