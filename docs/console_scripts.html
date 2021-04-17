@@ -68,7 +68,7 @@ def nodered_app():
     mutex = Lock()
 
     def on_connect(mac, info):
-        logging.info(f&#34;BT MAC {mac}: received presentation frame, {info} &#34;)
+        logging.info(f&#34;BT MAC {mac}: received presentation frame, {info}&#34;)
 
     def on_disconnect(mac, lost):
         if lost:
@@ -199,7 +199,7 @@ with the <strong>-p</strong> flag and the server address with the <strong>-s</st
     mutex = Lock()
 
     def on_connect(mac, info):
-        logging.info(f&#34;BT MAC {mac}: received presentation frame, {info} &#34;)
+        logging.info(f&#34;BT MAC {mac}: received presentation frame, {info}&#34;)
 
     def on_disconnect(mac, lost):
         if lost:

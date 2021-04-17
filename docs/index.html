@@ -26,7 +26,7 @@ mode, interacting with the applications on the mote …" />
 <p>This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in Master and Slave
 mode, interacting with the applications on the mote.</p>
 <p>When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
-you have to implement the presentation protocol inside on the Shimmer nesC application. This protocol is a way
+you have to implement the presentation protocol inside of the Shimmer nesC application. This protocol is a way
 to inform the Bt Master about the data format used when sending messages.</p>
 <p>The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully
 establishing a connection with the Bt Master. Its format is the following:</p>
@@ -41,6 +41,26 @@ typedef struct {
 </code></pre>
 <p>The presentation frame is automatically interpreted from the BtStream, so you don't have to do anything from this side
 of the communication.</p>
+<h2 id="callbacks">Callbacks</h2>
+<p>A series of callbacks can be used and set as properties to intercept certain events:</p>
+<ul>
+<li>
+<p><strong>on_connect(mac: str, info: frameinfo) -&gt; None</strong></p>
+<p>Called when a mote identified by <strong>mac</strong> succesfully connects. All the information
+regarding the exchanged data format, obtained through <em>the presentatin protocol</em> are
+accessible via <strong>info</strong>.</p>
+</li>
+<li>
+<p><strong>on_message(mac: str, frame: Dict[str, Any]) -&gt; None</strong></p>
+<p>Called when a message is received from a mote identified by <strong>mac</strong>. The message is
+returned as a dict with the keys previously obtained from the <em>presentation protocol</em>.</p>
+</li>
+<li>
+<p><strong>on_disconnect(mac: str, lost: bool) -&gt; None</strong></p>
+<p>Called when a mote identified by <strong>mac</strong> disconnects. If <strong>lost</strong> is true, the disconnect
+event happened because the connection has been lost.</p>
+</li>
+</ul>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -50,7 +70,7 @@ This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in M
 mode, interacting with the applications on the mote.
 
 When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
-you have to implement the presentation protocol inside on the Shimmer nesC application. This protocol is a way
+you have to implement the presentation protocol inside of the Shimmer nesC application. This protocol is a way
 to inform the Bt Master about the data format used when sending messages.
 
 The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully
@@ -69,6 +89,29 @@ typedef struct {
 
 The presentation frame is automatically interpreted from the BtStream, so you don&#39;t have to do anything from this side
 of the communication.
+
+
+## Callbacks
+
+
+A series of callbacks can be used and set as properties to intercept certain events:
+
+- **on_connect(mac: str, info: frameinfo) -&gt; None**
+
+    Called when a mote identified by **mac** succesfully connects. All the information
+    regarding the exchanged data format, obtained through *the presentatin protocol* are
+    accessible via **info**.
+
+- **on_message(mac: str, frame: Dict[str, Any]) -&gt; None**
+
+    Called when a message is received from a mote identified by **mac**. The message is
+    returned as a dict with the keys previously obtained from the *presentation protocol*.
+
+- **on_disconnect(mac: str, lost: bool) -&gt; None**
+
+    Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
+    event happened because the connection has been lost.
+
 &#34;&#34;&#34;
 
 from ._streams import BtStream, BtSlaveInputStream, BtMasterInputStream, Frameinfo
@@ -321,16 +364,24 @@ def index(self):
 <dd>
 <div class="desc"><p>Abstraction of a Bluetooth input stream coming from a mote with given mac over a given socket.
 A series of callbacks can be used and set as properties to intercept certain events:</p>
-<p>on_connect(mac: str, info: frameinfo) -&gt; None
-Called when a mote identified by <strong>mac</strong> succesfully connects. All the information
+<ul>
+<li>
+<p><strong>on_connect(mac: str, info: frameinfo) -&gt; None</strong></p>
+<p>Called when a mote identified by <strong>mac</strong> succesfully connects. All the information
 regarding the exchanged data format, obtained through <em>the presentatin protocol</em> are
-accessible via <strong>info</strong>.
-on_message(mac: str, frame: Dict[str, Any]) -&gt; None
-Called when a message is received from a mote identified by <strong>mac</strong>. The message is
-returned as a dict with the keys previously obtained from the <em>presentation protocol</em>.
-on_disconnect(mac: str, lost: bool) -&gt; None
-Called when a mote identified by <strong>mac</strong> disconnects. If <strong>lost</strong> is true, the disconnect
+accessible via <strong>info</strong>.</p>
+</li>
+<li>
+<p><strong>on_message(mac: str, frame: Dict[str, Any]) -&gt; None</strong></p>
+<p>Called when a message is received from a mote identified by <strong>mac</strong>. The message is
+returned as a dict with the keys previously obtained from the <em>presentation protocol</em>.</p>
+</li>
+<li>
+<p><strong>on_disconnect(mac: str, lost: bool) -&gt; None</strong></p>
+<p>Called when a mote identified by <strong>mac</strong> disconnects. If <strong>lost</strong> is true, the disconnect
 event happened because the connection has been lost.</p>
+</li>
+</ul>
 <p>Abstract class that describes and implements common functionalities of the Bt streams: the start/stop
 mechanism, callbacks, identification via Bt mac address.</p></div>
 <details class="source">
@@ -342,14 +393,19 @@ mechanism, callbacks, identification via Bt mac address.</p></div>
     Abstraction of a Bluetooth input stream coming from a mote with given mac over a given socket.
     A series of callbacks can be used and set as properties to intercept certain events:
 
-    on_connect(mac: str, info: frameinfo) -&gt; None
+    - **on_connect(mac: str, info: frameinfo) -&gt; None**
+
         Called when a mote identified by **mac** succesfully connects. All the information
         regarding the exchanged data format, obtained through *the presentatin protocol* are
         accessible via **info**.
-    on_message(mac: str, frame: Dict[str, Any]) -&gt; None
+
+    - **on_message(mac: str, frame: Dict[str, Any]) -&gt; None**
+
         Called when a message is received from a mote identified by **mac**. The message is
         returned as a dict with the keys previously obtained from the *presentation protocol*.
-    on_disconnect(mac: str, lost: bool) -&gt; None
+
+    - **on_disconnect(mac: str, lost: bool) -&gt; None**
+
         Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
         event happened because the connection has been lost.
     &#34;&#34;&#34;
@@ -523,7 +579,7 @@ that iteration of the loop won't be stopped.</p></div>
 </dd>
 <dt id="shimmer_listener.BtMasterInputStream"><code class="flex name class">
 <span>class <span class="ident">BtMasterInputStream</span></span>
-<span>(</span><span>mac: str, sock: bluetooth.bluez.BluetoothSocket, uuid: str)</span>
+<span>(</span><span>mac: str, sock: bluetooth.msbt.BluetoothSocket, uuid: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Abstraction for the data input stream coming from a master device running
@@ -658,6 +714,8 @@ is made as such:</p>
     def _loop(self):
         try:
             # Init BT socket and loop
+            # BUG in Win10 implementation, this will try to connect to previously paired
+            # devices, even when not on or close enough, raising an OSError
             rf_port = 1
             self._sock.connect((self._mac, rf_port))
             self._running = True
@@ -712,7 +770,9 @@ is made as such:</p>
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#callbacks">Callbacks</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>

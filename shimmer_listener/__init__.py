@@ -22,6 +22,29 @@ typedef struct {
 
 The presentation frame is automatically interpreted from the BtStream, so you don't have to do anything from this side
 of the communication.
+
+
+## Callbacks
+
+
+A series of callbacks can be used and set as properties to intercept certain events:
+
+- **on_connect(mac: str, info: frameinfo) -> None**
+
+    Called when a mote identified by **mac** succesfully connects. All the information
+    regarding the exchanged data format, obtained through *the presentatin protocol* are
+    accessible via **info**.
+
+- **on_message(mac: str, frame: Dict[str, Any]) -> None**
+
+    Called when a message is received from a mote identified by **mac**. The message is
+    returned as a dict with the keys previously obtained from the *presentation protocol*.
+
+- **on_disconnect(mac: str, lost: bool) -> None**
+
+    Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
+    event happened because the connection has been lost.
+
 """
 
 from ._streams import BtStream, BtSlaveInputStream, BtMasterInputStream, Frameinfo

@@ -21,14 +21,19 @@ class BtStream(ABC):
     Abstraction of a Bluetooth input stream coming from a mote with given mac over a given socket.
     A series of callbacks can be used and set as properties to intercept certain events:
 
-    on_connect(mac: str, info: frameinfo) -> None
+    - **on_connect(mac: str, info: frameinfo) -> None**
+
         Called when a mote identified by **mac** succesfully connects. All the information
         regarding the exchanged data format, obtained through *the presentatin protocol* are
         accessible via **info**.
-    on_message(mac: str, frame: Dict[str, Any]) -> None
+
+    - **on_message(mac: str, frame: Dict[str, Any]) -> None**
+
         Called when a message is received from a mote identified by **mac**. The message is
         returned as a dict with the keys previously obtained from the *presentation protocol*.
-    on_disconnect(mac: str, lost: bool) -> None
+
+    - **on_disconnect(mac: str, lost: bool) -> None**
+
         Called when a mote identified by **mac** disconnects. If **lost** is true, the disconnect
         event happened because the connection has been lost.
     """
