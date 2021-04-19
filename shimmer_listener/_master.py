@@ -47,7 +47,8 @@ def _master_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = 
     # We need to add a way to delete the stream from the open ones when it disconnects, so
     # we modify the passed disconnect handler to have a call to the local private _close_stream
     def capture_disconnect(mac, lost):
-        disconnect_handle(mac, lost)
+        if disconnect_handle:
+            disconnect_handle(mac, lost)
         _close_stream(mac)
 
     while _discovering:

@@ -105,7 +105,3 @@ def printer_app():
         bt_close()
     except KeyboardInterrupt:
         bt_close()
-
-
-if __name__ == "__main__":
-    printer_app()
