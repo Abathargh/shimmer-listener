@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="shimmer-listener",
-    version="0.3",
+    version="0.3.1",
     description="A library to process bluetooth data from a shimmer2 runnning tinyos",
     long_description=desc,
     long_description_content_type="text/markdown",
@@ -20,7 +20,6 @@ setup(
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "shimmer-to-nodered=shimmer_listener.console_scripts:nodered_app",
             "shimmer-printer=shimmer_listener.console_scripts:printer_app",
             "shimmer-btslave=shimmer_listener.console_scripts:btmastertest_app"
         ]

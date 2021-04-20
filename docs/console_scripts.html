@@ -27,12 +27,8 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from shimmer_listener import bt_init, bt_listen, bt_close, BtMode
-from threading import Lock
 import bluetooth
-import argparse
 import logging
-import socket
-import json
 
 
 logging.basicConfig(level=logging.INFO)
@@ -51,58 +47,6 @@ def btmastertest_app():
 
     try:
         bt_listen(message_handle=on_message)
-    except KeyboardInterrupt:
-        bt_close()
-
-
-def nodered_app():
-    &#34;&#34;&#34;
-    Nodered compatibility example app.
-
-    It forwards data to a specific socket port on the machine identified by the specified address.
-    Used along with a nodered instance where a tcp node acts as the data source. You can specify the port
-    with the **-p** flag and the server address with the **-s** flag; the -p flag is mandatory, the default value for
-    -s is *localhost*.
-    &#34;&#34;&#34;
-    c_data_socket: socket.socket
-    mutex = Lock()
-
-    def on_connect(mac, info):
-        logging.info(f&#34;BT MAC {mac}: received presentation frame, {info}&#34;)
-
-    def on_disconnect(mac, lost):
-        if lost:
-            logging.error(f&#34;BT MAC {mac}: connection lost&#34;)
-        else:
-            logging.info(f&#34;BT MAC {mac}: disconnecting&#34;)
-
-    # The newline char is the data separator used in order for the tcp
-    # node in node-red to understand that an instance of incoming data is arrived
-    def on_message(mac, data):
-        j_data = json.dumps(data)
-        with mutex:
-            c_data_socket.send((j_data + &#34;\n&#34;).encode())
-
-    description = &#34;Forwards data to a specific socket port on the machine identified by the specified address. &#34; \
-                  &#34;Used along with a nodered instance where a tcp node acts as the data source.&#34;
-    port_help = &#34;The socket port to use to forward the shimmer data&#34;
-    host_help = &#34;The server address that is listening at the given port; defaults to &#39;localhost&#39;&#34;
-
-    parser = argparse.ArgumentParser(description)
-    parser.add_argument(&#34;--port&#34;, &#34;-p&#34;, type=int, required=True, help=port_help)
-    parser.add_argument(&#34;--server&#34;, &#34;-s&#34;, type=str, help=host_help, default=&#34;localhost&#34;)
-
-    args = parser.parse_args()
-    bt_init(mode=BtMode.MASTER)
-    c_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    c_data_socket.connect((args.server, args.port))
-
-    try:
-        bt_listen(connect_handle=on_connect, message_handle=on_message,
-                  disconnect_handle=on_disconnect)
-    except bluetooth.btcommon.BluetoothError as be:
-        logging.error(be)
-        bt_close()
     except KeyboardInterrupt:
         bt_close()
 
@@ -132,11 +76,7 @@ def printer_app():
         logging.error(be)
         bt_close()
     except KeyboardInterrupt:
-        bt_close()
-
-
-if __name__ == &#34;__main__&#34;:
-    printer_app()</code></pre>
+        bt_close()</code></pre>
 </details>
 </section>
 <section>
@@ -169,71 +109,6 @@ Loosely based on the bluetoothMasterTest.py app from <a href="https://github.com
 
     try:
         bt_listen(message_handle=on_message)
-    except KeyboardInterrupt:
-        bt_close()</code></pre>
-</details>
-</dd>
-<dt id="shimmer_listener.console_scripts.nodered_app"><code class="name flex">
-<span>def <span class="ident">nodered_app</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Nodered compatibility example app.</p>
-<p>It forwards data to a specific socket port on the machine identified by the specified address.
-Used along with a nodered instance where a tcp node acts as the data source. You can specify the port
-with the <strong>-p</strong> flag and the server address with the <strong>-s</strong> flag; the -p flag is mandatory, the default value for
--s is <em>localhost</em>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nodered_app():
-    &#34;&#34;&#34;
-    Nodered compatibility example app.
-
-    It forwards data to a specific socket port on the machine identified by the specified address.
-    Used along with a nodered instance where a tcp node acts as the data source. You can specify the port
-    with the **-p** flag and the server address with the **-s** flag; the -p flag is mandatory, the default value for
-    -s is *localhost*.
-    &#34;&#34;&#34;
-    c_data_socket: socket.socket
-    mutex = Lock()
-
-    def on_connect(mac, info):
-        logging.info(f&#34;BT MAC {mac}: received presentation frame, {info}&#34;)
-
-    def on_disconnect(mac, lost):
-        if lost:
-            logging.error(f&#34;BT MAC {mac}: connection lost&#34;)
-        else:
-            logging.info(f&#34;BT MAC {mac}: disconnecting&#34;)
-
-    # The newline char is the data separator used in order for the tcp
-    # node in node-red to understand that an instance of incoming data is arrived
-    def on_message(mac, data):
-        j_data = json.dumps(data)
-        with mutex:
-            c_data_socket.send((j_data + &#34;\n&#34;).encode())
-
-    description = &#34;Forwards data to a specific socket port on the machine identified by the specified address. &#34; \
-                  &#34;Used along with a nodered instance where a tcp node acts as the data source.&#34;
-    port_help = &#34;The socket port to use to forward the shimmer data&#34;
-    host_help = &#34;The server address that is listening at the given port; defaults to &#39;localhost&#39;&#34;
-
-    parser = argparse.ArgumentParser(description)
-    parser.add_argument(&#34;--port&#34;, &#34;-p&#34;, type=int, required=True, help=port_help)
-    parser.add_argument(&#34;--server&#34;, &#34;-s&#34;, type=str, help=host_help, default=&#34;localhost&#34;)
-
-    args = parser.parse_args()
-    bt_init(mode=BtMode.MASTER)
-    c_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    c_data_socket.connect((args.server, args.port))
-
-    try:
-        bt_listen(connect_handle=on_connect, message_handle=on_message,
-                  disconnect_handle=on_disconnect)
-    except bluetooth.btcommon.BluetoothError as be:
-        logging.error(be)
-        bt_close()
     except KeyboardInterrupt:
         bt_close()</code></pre>
 </details>
@@ -294,7 +169,6 @@ with the <strong>-p</strong> flag and the server address with the <strong>-s</st
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="shimmer_listener.console_scripts.btmastertest_app" href="#shimmer_listener.console_scripts.btmastertest_app">btmastertest_app</a></code></li>
-<li><code><a title="shimmer_listener.console_scripts.nodered_app" href="#shimmer_listener.console_scripts.nodered_app">nodered_app</a></code></li>
 <li><code><a title="shimmer_listener.console_scripts.printer_app" href="#shimmer_listener.console_scripts.printer_app">printer_app</a></code></li>
 </ul>
 </li>

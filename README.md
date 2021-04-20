@@ -177,7 +177,7 @@ except KeyboardInterrupt:
     bt_close()
 ```
 
-You can take a look at the **_console_scripts** module for some full examples practical example.
+You can take a look at the **Examples** directory and at the **_console_scripts** module for some practical examples.
 
 ### Callbacks
 
@@ -222,16 +222,6 @@ bt_listen(connect_handle=on_connect, message_handle=on_message,
 ## Console Scripts
 
 The following executable applications are shipped with the library and can be used once you install it.
-
-### shimmer-to-nodered
-
-The library can be integrated in a nodered flow by using a tcp node listening on a given port. 
-You can then use the **shimmer-to-nodered** script to forward the data received through bluetooth by the shimmer 
-to the nodered instance:
-
-```bash
-shimmer-to-nodered -p <port>
-```
 
 ### shimmer-printer
 
