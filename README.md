@@ -6,19 +6,20 @@ inspired from the python demo scripts that can be found inside the sub-directori
 
 ## Contents
 
-- [About](#about)
-  - [Presentation protocol](#presentation-protocol)
-- [Installation](#installation)
-  - [Windows](#windows)
-  - [Debian-like](#debian-like)
-- [Usage](#usage)
-  - [Documentation](#documentation)
-  - [Bt Master example](#bt-master-example)
-  - [Callbacks](#callbacks)
-- [Console Scripts](#console-scripts)
-  - [shimmer-to-nodered](#shimmer-to-nodered)
-  - [shimmer-printer](#shimmer-printer)
-  - [shimmer-btslave](#shimmer-btslave)
+- [shimmer-listener](#shimmer-listener)
+  - [Contents](#contents)
+  - [About](#about)
+    - [Presentation protocol](#presentation-protocol)
+  - [Installation](#installation)
+    - [Windows](#windows)
+    - [Debian-like](#debian-like)
+  - [Usage](#usage)
+    - [Documentation](#documentation)
+    - [Bt Master example](#bt-master-example)
+    - [Callbacks](#callbacks)
+  - [Console Scripts](#console-scripts)
+    - [shimmer-printer](#shimmer-printer)
+    - [shimmer-btslave](#shimmer-btslave)
 
   
 ## About
@@ -77,6 +78,8 @@ Then we'll have:
 - keys = {"accel_x", "accel_y", "accel_z", "batt"}
 
 ## Installation
+
+If you have any problems installing or building a version of pybluez for your target platform, I have a repository hosting some pre-compiled wheels for different python version and platforms, [you can find the wheels here](https://github.com/Abathargh/pybluez-wheels/).
 
 ### Windows
 
