@@ -1,10 +1,14 @@
 """
+## shimmer-listener
+
 This library allows you to connect to a Shimmer2/2r mote via Bluetooth both in Master and Slave
 mode, interacting with the applications on the mote.
 
 When communicating with a Shimmer mote using an app made with this library as the Bluetooth Master,
 you have to implement the presentation protocol inside of the Shimmer nesC application. This protocol is a way
 to inform the Bt Master about the data format used when sending messages.
+
+## Presentation protocol
 
 The protocol is implemented by sending a simple struct via Bluetooth as the very first message after successfully
 establishing a connection with the Bt Master. Its format is the following:

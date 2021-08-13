@@ -189,7 +189,7 @@ A series of callbacks can be used and set as properties to intercept certain eve
 - **on_connect(mac: str, info: frameinfo) -> None**
   
     Called when a mote identified by **mac** succesfully connects. All the information
-    regarding the exchanged data format, obtained through *the presentatin protocol* are
+    regarding the exchanged data format, obtained through *the presentation protocol* are
     accessible via **info**.
 
 - **on_message(mac: str, frame: Dict[str, Any]) -> None**
