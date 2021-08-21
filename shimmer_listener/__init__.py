@@ -55,7 +55,7 @@ from ._streams import BtStream, BtSlaveInputStream, BtMasterInputStream, Framein
 from ._slave import _slave_init, _slave_listen, _slave_close
 from ._master import _master_listen, _master_close
 
-from typing import Optional, Callable, Any, Dict, List
+from typing import Optional, Callable, Any, Dict, List, Union
 import enum
 
 
@@ -101,15 +101,22 @@ def bt_init(mode: BtMode) -> None:
 
 def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
               message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-              disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
+              disconnect_handle: Optional[Callable[[str, bool], None]] = None,
+              **kwargs: Union[str, float]) -> None:
     """
     Starts the listen loop, attaching the passed handlers as event callbacks to each
-    stream that is started.
+    stream that is started. Various options can be passed as keyword arguments
+    depending on the stream type.
+
+    If the application is in master mode, you can specify the duration of the lookup 
+    and scan operations using the following keyword arguments:
+        - **lookup_duration**: defaults to 5 seconds
+        - **scan_interval**: default to 5 seconds
     """
     global _op_mode
     if _op_mode is None or not _running:
         raise ValueError("Listen operation on non initialized interface")
-    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle)
+    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle, **kwargs)
 
 
 def bt_close() -> None:

@@ -7,7 +7,7 @@ General idea:
 (*) devices with an ID starting with "RN42" are shimmer devices
 """
 
-from typing import Optional, Callable, Any, Dict
+from typing import Optional, Callable, Any, Dict, Union
 from threading import Lock
 import bluetooth
 import logging
@@ -17,8 +17,8 @@ from ._streams import BtSlaveInputStream, Frameinfo
 
 # Lookup duration for the scan operation by the master
 # The RF port to use is the number 1
-lookup_duration = 5
-scan_interval = 5
+_def_lookup_duration = 5
+_def_scan_interval = 5
 
 
 # App name to frameinfo mapping
@@ -43,7 +43,11 @@ def _close_streams():
 
 def _master_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
                    message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-                   disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
+                   disconnect_handle: Optional[Callable[[str, bool], None]] = None,
+                   **kwargs: Union[str, float]) -> None:
+    lookup_duration = kwargs["lookup_duration"] if "lookup_duration" in kwargs else _def_lookup_duration
+    scan_interval = kwargs["scan_interval"] if "scan_interval" in kwargs else _def_scan_interval
+
     # We need to add a way to delete the stream from the open ones when it disconnects, so
     # we modify the passed disconnect handler to have a call to the local private _close_stream
     def capture_disconnect(mac, lost):

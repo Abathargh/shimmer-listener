@@ -8,7 +8,7 @@ to be forwarded to other apps (e.g. nodered)
 This library is mainly used in master mode and its slave mode functionalities are limited to the bluetoothMasterApp.
 """
 
-from typing import Optional, Callable, Any, Dict
+from typing import Optional, Callable, Any, Dict, Union
 from bluetooth import *
 import logging
 
@@ -32,7 +32,8 @@ def _slave_init():
 
 def _slave_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
                   message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-                  disconnect_handle: Optional[Callable[[str, bool], None]] = None) -> None:
+                  disconnect_handle: Optional[Callable[[str, bool], None]] = None,
+                  **kwargs: Union[str, float]) -> None:
     global _bt_sock
     while True:
         client_sock, client_info = _bt_sock.accept()
