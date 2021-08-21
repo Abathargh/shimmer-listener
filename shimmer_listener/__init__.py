@@ -110,8 +110,10 @@ def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
 
     If the application is in master mode, you can specify the duration of the lookup 
     and scan operations using the following keyword arguments:
-        - **lookup_duration**: defaults to 5 seconds
-        - **scan_interval**: default to 5 seconds
+
+    - **lookup_duration**: defaults to 5 seconds
+
+    - **scan_interval**: default to 5 seconds
     """
     global _op_mode
     if _op_mode is None or not _running:

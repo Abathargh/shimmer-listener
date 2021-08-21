@@ -102,6 +102,10 @@ class BtStream(ABC):
         if not self._running:
             Thread(target=self._loop).start()
 
+    def loop_forever(self):
+        if not self._running:
+            self._loop()
+
 
 class BtMasterInputStream(BtStream):
     """
