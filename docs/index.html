@@ -123,7 +123,7 @@ from ._streams import BtStream, BtSlaveInputStream, BtMasterInputStream, Framein
 from ._slave import _slave_init, _slave_listen, _slave_close
 from ._master import _master_listen, _master_close
 
-from typing import Optional, Callable, Any, Dict, List
+from typing import Optional, Callable, Any, Dict, List, Union
 import enum
 
 
@@ -169,15 +169,24 @@ def bt_init(mode: BtMode) -&gt; None:
 
 def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
               message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-              disconnect_handle: Optional[Callable[[str, bool], None]] = None) -&gt; None:
+              disconnect_handle: Optional[Callable[[str, bool], None]] = None,
+              **kwargs: Union[str, float]) -&gt; None:
     &#34;&#34;&#34;
     Starts the listen loop, attaching the passed handlers as event callbacks to each
-    stream that is started.
+    stream that is started. Various options can be passed as keyword arguments
+    depending on the stream type.
+
+    If the application is in master mode, you can specify the duration of the lookup 
+    and scan operations using the following keyword arguments:
+
+    - **lookup_duration**: defaults to 5 seconds
+
+    - **scan_interval**: default to 5 seconds
     &#34;&#34;&#34;
     global _op_mode
     if _op_mode is None or not _running:
         raise ValueError(&#34;Listen operation on non initialized interface&#34;)
-    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle)
+    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle, **kwargs)
 
 
 def bt_close() -&gt; None:
@@ -232,26 +241,46 @@ Call this at the beginning of your program.</p></div>
 </details>
 </dd>
 <dt id="shimmer_listener.bt_listen"><code class="name flex">
-<span>def <span class="ident">bt_listen</span></span>(<span>connect_handle: Optional[Callable[[str, shimmer_listener._streams.Frameinfo], None]] = None, message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None, disconnect_handle: Optional[Callable[[str, bool], None]] = None) ‑> None</span>
+<span>def <span class="ident">bt_listen</span></span>(<span>connect_handle: Optional[Callable[[str, shimmer_listener._streams.Frameinfo], None]] = None, message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None, disconnect_handle: Optional[Callable[[str, bool], None]] = None, **kwargs: Union[str, float]) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Starts the listen loop, attaching the passed handlers as event callbacks to each
-stream that is started.</p></div>
+stream that is started. Various options can be passed as keyword arguments
+depending on the stream type.</p>
+<p>If the application is in master mode, you can specify the duration of the lookup
+and scan operations using the following keyword arguments:</p>
+<ul>
+<li>
+<p><strong>lookup_duration</strong>: defaults to 5 seconds</p>
+</li>
+<li>
+<p><strong>scan_interval</strong>: default to 5 seconds</p>
+</li>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def bt_listen(connect_handle: Optional[Callable[[str, Frameinfo], None]] = None,
               message_handle: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-              disconnect_handle: Optional[Callable[[str, bool], None]] = None) -&gt; None:
+              disconnect_handle: Optional[Callable[[str, bool], None]] = None,
+              **kwargs: Union[str, float]) -&gt; None:
     &#34;&#34;&#34;
     Starts the listen loop, attaching the passed handlers as event callbacks to each
-    stream that is started.
+    stream that is started. Various options can be passed as keyword arguments
+    depending on the stream type.
+
+    If the application is in master mode, you can specify the duration of the lookup 
+    and scan operations using the following keyword arguments:
+
+    - **lookup_duration**: defaults to 5 seconds
+
+    - **scan_interval**: default to 5 seconds
     &#34;&#34;&#34;
     global _op_mode
     if _op_mode is None or not _running:
         raise ValueError(&#34;Listen operation on non initialized interface&#34;)
-    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle)</code></pre>
+    listen[_op_mode.index](connect_handle, message_handle, disconnect_handle, **kwargs)</code></pre>
 </details>
 </dd>
 <dt id="shimmer_listener.bt_close"><code class="name flex">
@@ -477,7 +506,11 @@ mechanism, callbacks, identification via Bt mac address.</p></div>
         Starts the Input stream, non blocking.
         &#34;&#34;&#34;
         if not self._running:
-            Thread(target=self._loop).start()</code></pre>
+            Thread(target=self._loop).start()
+
+    def loop_forever(self):
+        if not self._running:
+            self._loop()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -578,6 +611,20 @@ that iteration of the loop won't be stopped.</p></div>
     &#34;&#34;&#34;
     if not self._running:
         Thread(target=self._loop).start()</code></pre>
+</details>
+</dd>
+<dt id="shimmer_listener.BtStream.loop_forever"><code class="name flex">
+<span>def <span class="ident">loop_forever</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loop_forever(self):
+    if not self._running:
+        self._loop()</code></pre>
 </details>
 </dd>
 </dl>
@@ -812,6 +859,7 @@ is made as such:</p>
 <ul class="two-column">
 <li><code><a title="shimmer_listener.BtStream.stop" href="#shimmer_listener.BtStream.stop">stop</a></code></li>
 <li><code><a title="shimmer_listener.BtStream.start" href="#shimmer_listener.BtStream.start">start</a></code></li>
+<li><code><a title="shimmer_listener.BtStream.loop_forever" href="#shimmer_listener.BtStream.loop_forever">loop_forever</a></code></li>
 <li><code><a title="shimmer_listener.BtStream.on_connect" href="#shimmer_listener.BtStream.on_connect">on_connect</a></code></li>
 <li><code><a title="shimmer_listener.BtStream.on_message" href="#shimmer_listener.BtStream.on_message">on_message</a></code></li>
 <li><code><a title="shimmer_listener.BtStream.on_disconnect" href="#shimmer_listener.BtStream.on_disconnect">on_disconnect</a></code></li>
