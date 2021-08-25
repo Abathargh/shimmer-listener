@@ -202,6 +202,12 @@ class BtSlaveInputStream(BtStream):
         for base in range(0, keys_len, key_len):
             data_keys.append(unfmt_keys[base:base + key_len].rstrip("\x00"))
         data_keys = [elem for elem in data_keys if elem != '']
+
+        # Check for the validity of the information passed by the mote
+        if framesize <= 0 or lenchunks <= 0 or lenchunks > framesize \
+                or framesize % lenchunks != 0 or struct.calcsize(chunk_fmt) != lenchunks \
+                or len(data_keys) != len(struct.unpack(chunk_fmt, b'\x00' * struct.calcsize(chunk_fmt))):
+            raise ValueError
         self._info = Frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
 
     def _loop(self):
@@ -245,7 +251,7 @@ class BtSlaveInputStream(BtStream):
                 self.on_disconnect(self._mac, True)
             else:
                 raise bluetooth.BluetoothError(f"BT MAC {self._mac}: couldn't connect to the bluetooth interface")
-        except struct.error:
+        except (ValueError, struct.error):
             raise ConnectionError(f"BT MAC {self._mac}: error in decoding presentation frame!")
         finally:
             self._running = False
