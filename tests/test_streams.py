@@ -49,7 +49,7 @@ def generate_frame(wrong: str) -> bytes:
 class TestBtSlaveStream(unittest.TestCase):
     def setUp(self):
         self.mac = "mac"
-        self.read = {}
+        self.read = {"mac": "", "frame": "", "frameinfo_error": False, "message": {}}
         self.stream = shimmer_listener.BtSlaveInputStream(self.mac)
         bluetooth.BluetoothSocket.recv = MagicMock(side_effect=custom_recv("ok"))
 
@@ -70,22 +70,54 @@ class TestBtSlaveStream(unittest.TestCase):
         self.assertEqual(self.stream.open, True, "stream open property returns False after starting it")
 
     def test_wrong_framesize(self):
+        def on_disconnect(_, lost):
+            if lost:
+                self.read["frameinfo_error"] = True
+        self.stream.on_disconnect = on_disconnect
         bluetooth.BluetoothSocket.recv = MagicMock(side_effect=custom_recv("framesize"))
-        self.assertRaises(ConnectionError, self.stream.loop_forever)
+        self.stream.start()
+        self.stream.stop()
+        self.assertEqual(self.read["frameinfo_error"], True, "expected frameinfo_error to be set")
 
-    def test_wrong_chunklen(self):
+    def test_wrong_chunklen_zero(self):
+        def on_disconnect(_, lost):
+            if lost:
+                self.read["frameinfo_error"] = True
+        self.stream.on_disconnect = on_disconnect
         bluetooth.BluetoothSocket.recv = MagicMock(side_effect=custom_recv("lenchunk1"))
-        self.assertRaises(ConnectionError, self.stream.loop_forever)
+        self.stream.start()
+        self.stream.stop()
+        self.assertEqual(self.read["frameinfo_error"], True, "expected frameinfo_error to be set")
 
+    def test_wrong_chunklen_greater(self):
+        def on_disconnect(_, lost):
+            if lost:
+                self.read["frameinfo_error"] = True
+        self.stream.on_disconnect = on_disconnect
         bluetooth.BluetoothSocket.recv = MagicMock(side_effect=custom_recv("lenchunk2"))
-        self.assertRaises(ConnectionError, self.stream.loop_forever)
+        self.stream.start()
+        self.stream.stop()
+        self.assertEqual(self.read["frameinfo_error"], True, "expected frameinfo_error to be set")
 
+    def test_wrong_chunklen_multiple(self):
+        def on_disconnect(_, lost):
+            if lost:
+                self.read["frameinfo_error"] = True
+        self.stream.on_disconnect = on_disconnect
         bluetooth.BluetoothSocket.recv = MagicMock(side_effect=custom_recv("lenchunk3"))
-        self.assertRaises(ConnectionError, self.stream.loop_forever)
+        self.stream.start()
+        self.stream.stop()
+        self.assertEqual(self.read["frameinfo_error"], True, "expected frameinfo_error to be set")
 
     def test_wrong_chunkfmt(self):
+        def on_disconnect(_, lost):
+            if lost:
+                self.read["frameinfo_error"] = True
+        self.stream.on_disconnect = on_disconnect
         bluetooth.BluetoothSocket.recv = MagicMock(side_effect=custom_recv("chunkfmt"))
-        self.assertRaises(ConnectionError, self.stream.loop_forever)
+        self.stream.start()
+        self.stream.stop()
+        self.assertEqual(self.read["frameinfo_error"], True, "expected frameinfo_error to be set")
 
     def test_start(self):
         expected_frame = shimmer_listener.Frameinfo(120, 8, "hhhh", ["accel_x", "accel_y", "accel_z", "batt"])

@@ -252,7 +252,10 @@ class BtSlaveInputStream(BtStream):
             else:
                 raise bluetooth.BluetoothError(f"BT MAC {self._mac}: couldn't connect to the bluetooth interface")
         except (ValueError, struct.error):
-            raise ConnectionError(f"BT MAC {self._mac}: error in decoding presentation frame!")
+            if self._running and self.on_disconnect:
+                self.on_disconnect(self._mac, True)
+            else:
+                raise ConnectionError(f"BT MAC {self._mac}: error in decoding presentation frame!")
         finally:
             self._running = False
             self._sock.close()
