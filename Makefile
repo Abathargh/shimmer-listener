@@ -1,13 +1,16 @@
-wheel:
+test :
+	python -m unittest discover tests
+
+wheel :
 	python setup.py bdist_wheel
 
-build:
-	python3 -m pip install --upgrade build && python -m build
+build :
+	python -m pip install --upgrade build && python -m build
 
-upload:
+upload :
 	twine upload --repository pypi dist/*
 
-docs:
+docs :
 	pdoc --html --force --output-dir docs -c sort_identifiers=False shimmer_listener
 	mv docs/shimmer_listener/* docs/
 	rm -rf docs/shimmer_listener
@@ -18,6 +21,7 @@ clean :
 clean-docs:
 	rm -rf docs
 
+.PHONY : test
 .PHONY : wheel
 .PHONY : build
 .PHONY : upload
