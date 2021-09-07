@@ -761,6 +761,12 @@ is made as such:</p>
         for base in range(0, keys_len, key_len):
             data_keys.append(unfmt_keys[base:base + key_len].rstrip(&#34;\x00&#34;))
         data_keys = [elem for elem in data_keys if elem != &#39;&#39;]
+
+        # Check for the validity of the information passed by the mote
+        if framesize &lt;= 0 or lenchunks &lt;= 0 or lenchunks &gt; framesize \
+                or framesize % lenchunks != 0 or struct.calcsize(chunk_fmt) != lenchunks \
+                or len(data_keys) != len(struct.unpack(chunk_fmt, b&#39;\x00&#39; * struct.calcsize(chunk_fmt))):
+            raise ValueError
         self._info = Frameinfo(framesize, lenchunks, chunk_fmt, data_keys)
 
     def _loop(self):
@@ -804,8 +810,11 @@ is made as such:</p>
                 self.on_disconnect(self._mac, True)
             else:
                 raise bluetooth.BluetoothError(f&#34;BT MAC {self._mac}: couldn&#39;t connect to the bluetooth interface&#34;)
-        except struct.error:
-            raise ConnectionError(f&#34;BT MAC {self._mac}: error in decoding presentation frame!&#34;)
+        except (ValueError, struct.error):
+            if self._running and self.on_disconnect:
+                self.on_disconnect(self._mac, True)
+            else:
+                raise ConnectionError(f&#34;BT MAC {self._mac}: error in decoding presentation frame!&#34;)
         finally:
             self._running = False
             self._sock.close()</code></pre>
