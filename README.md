@@ -1,5 +1,7 @@
 # shimmer-listener
 
+## THIS PROJECT IS ARCHIVED, PLEASE FEEL FREE TO CONTACT ME IF YOU WISH TO BE A MAINTAINER OR FORK IT.
+
 This is a project that started from the idea of having a general library that interacted with shimmer apps for tinyos, 
 inspired from the python demo scripts that can be found inside the sub-directories of the 
 [tinyos shimmer apps repository](https://github.com/ShimmerResearch/tinyos-shimmer).
